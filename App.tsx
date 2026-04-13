@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native";
 import { FeedScreen } from "./components/FeedScreen";
 import { IssueDetailScreen } from "./components/IssueDetailScreen";
 import { NotificationsScreen } from "./components/NotificationsScreen";
@@ -26,6 +27,18 @@ export default function App() {
       uiLanguage: language,
       languageMode: language === "en" ? "full_en" : "en_source_ko_all",
     });
+  }
+
+  if (!app.isReady) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={colors.accentStrong} size="small" />
+          <Text style={styles.loadingText}>Loading StackPulse...</Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   if (!app.isOnboarded) {
@@ -116,5 +129,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  loadingWrap: {
+    alignItems: "center",
+    flex: 1,
+    gap: 12,
+    justifyContent: "center",
+    padding: 24,
+  },
+  loadingText: {
+    color: colors.subtext,
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

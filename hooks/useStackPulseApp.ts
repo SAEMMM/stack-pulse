@@ -1,7 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generatedIssues } from "../lib/issues";
 import { AppTab, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
+import {
+  loadPersistedAppState,
+  persistIsOnboarded,
+  persistIssueStates,
+  persistPreferences,
+} from "../lib/storage";
 
 const defaultPreferences: UserPreferences = {
   role: "frontend",
@@ -27,11 +33,61 @@ function createInitialState(): Record<string, IssueState> {
 }
 
 export function useStackPulseApp() {
+  const [isReady, setIsReady] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [states, setStates] = useState<Record<string, IssueState>>(createInitialState);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function hydrate() {
+      try {
+        const persisted = await loadPersistedAppState();
+
+        if (!isMounted) return;
+
+        if (persisted.preferences) {
+          setPreferences(persisted.preferences);
+        }
+
+        if (persisted.issueStates) {
+          setStates((prev) => ({ ...prev, ...persisted.issueStates }));
+        }
+
+        if (persisted.isOnboarded) {
+          setIsOnboarded(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsReady(true);
+        }
+      }
+    }
+
+    hydrate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isReady) return;
+    persistPreferences(preferences);
+  }, [isReady, preferences]);
+
+  useEffect(() => {
+    if (!isReady) return;
+    persistIssueStates(states);
+  }, [isReady, states]);
+
+  useEffect(() => {
+    if (!isReady) return;
+    persistIsOnboarded(isOnboarded);
+  }, [isOnboarded, isReady]);
 
   const sortedIssues = useMemo(
     () => sortIssues(generatedIssues, states, preferences.stacks),
@@ -87,6 +143,7 @@ export function useStackPulseApp() {
 
   return {
     currentTab,
+    isReady,
     isOnboarded,
     notifications,
     preferences,
