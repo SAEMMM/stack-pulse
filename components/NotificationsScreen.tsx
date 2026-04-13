@@ -1,15 +1,17 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, spacing } from "../constants/theme";
 import { getSeverityColors, getSeverityLabel } from "../lib/format";
-import { Issue } from "../types/app";
+import { Issue, IssueState } from "../types/app";
 import { Badge } from "./Badge";
 
 export function NotificationsScreen({
   issues,
   onOpen,
+  states,
 }: {
   issues: Issue[];
   onOpen: (issue: Issue) => void;
+  states: Record<string, IssueState>;
 }) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -25,7 +27,10 @@ export function NotificationsScreen({
                 backgroundColor={severityColors.bg}
                 color={severityColors.text}
               />
-              <Text style={styles.timestamp}>{new Date(issue.publishedAt).toLocaleDateString()}</Text>
+              <Text style={styles.timestamp}>
+                {states[issue.id]?.isRead ? "Read" : "Unread"} ·{" "}
+                {new Date(issue.publishedAt).toLocaleDateString()}
+              </Text>
             </View>
             <Text style={styles.original}>{issue.originalTitle}</Text>
             <Text style={styles.summary}>{issue.summary.ko}</Text>

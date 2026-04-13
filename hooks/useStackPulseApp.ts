@@ -8,6 +8,7 @@ const defaultPreferences: UserPreferences = {
   stacks: ["React", "Next.js", "TypeScript"],
   languageMode: "en_source_ko_all",
   pushLevel: "important_only",
+  hideReadIssues: false,
 };
 
 function createInitialState(): Record<string, IssueState> {
@@ -19,6 +20,7 @@ function createInitialState(): Record<string, IssueState> {
         isRead: false,
         isSaved: issue.id === "typescript-vuln",
         isNotified: issue.severity !== "major",
+        isDismissed: false,
       },
     ]),
   );
@@ -36,14 +38,25 @@ export function useStackPulseApp() {
     [preferences.stacks, states],
   );
 
+  const visibleIssues = useMemo(
+    () =>
+      sortedIssues.filter((issue) => {
+        const state = states[issue.id];
+        if (state?.isDismissed) return false;
+        if (preferences.hideReadIssues && state?.isRead) return false;
+        return true;
+      }),
+    [preferences.hideReadIssues, sortedIssues, states],
+  );
+
   const savedIssues = useMemo(
-    () => sortedIssues.filter((issue) => states[issue.id]?.isSaved),
-    [sortedIssues, states],
+    () => visibleIssues.filter((issue) => states[issue.id]?.isSaved),
+    [visibleIssues, states],
   );
 
   const notifications = useMemo(
-    () => sortedIssues.filter((issue) => states[issue.id]?.isNotified),
-    [sortedIssues, states],
+    () => visibleIssues.filter((issue) => states[issue.id]?.isNotified),
+    [visibleIssues, states],
   );
 
   function completeOnboarding(next: UserPreferences) {
@@ -73,11 +86,28 @@ export function useStackPulseApp() {
     }));
   }
 
+  function dismissIssue(issueId: string) {
+    setStates((prev) => ({
+      ...prev,
+      [issueId]: { ...prev[issueId], isDismissed: true },
+    }));
+    setSelectedIssue((current) => (current?.id === issueId ? null : current));
+  }
+
+  function restoreDismissed(issueId: string) {
+    setStates((prev) => ({
+      ...prev,
+      [issueId]: { ...prev[issueId], isDismissed: false },
+    }));
+  }
+
   return {
     currentTab,
+    dismissIssue,
     isOnboarded,
     notifications,
     preferences,
+    restoreDismissed,
     savedIssues,
     selectedIssue,
     setCurrentTab,
@@ -87,7 +117,7 @@ export function useStackPulseApp() {
     toggleSaved,
     markUnread,
     states,
-    sortedIssues,
+    sortedIssues: visibleIssues,
     setSelectedIssue,
   };
 }

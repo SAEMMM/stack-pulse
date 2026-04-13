@@ -14,6 +14,8 @@ export function FeedScreen({
   stacks,
   onPressIssue,
   onToggleSaved,
+  onDismissIssue,
+  hideReadIssues,
 }: {
   issues: Issue[];
   states: Record<string, IssueState>;
@@ -21,6 +23,8 @@ export function FeedScreen({
   stacks: string[];
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
+  onDismissIssue: (issueId: string) => void;
+  hideReadIssues: boolean;
 }) {
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
 
@@ -76,6 +80,9 @@ export function FeedScreen({
         정렬합니다.
       </Text>
       <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
+      <Text style={styles.preferenceState}>
+        {hideReadIssues ? "읽은 이슈 숨김이 켜져 있습니다." : "읽은 이슈도 함께 표시됩니다."}
+      </Text>
 
       <View style={styles.heroCard}>
         <Text style={styles.heroLabel}>How to read</Text>
@@ -133,6 +140,7 @@ export function FeedScreen({
             mode={mode}
             onPress={() => onPressIssue(issue)}
             onToggleSaved={() => onToggleSaved(issue.id)}
+            onDismiss={() => onDismissIssue(issue.id)}
           />
         ))
       )}
@@ -172,6 +180,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     marginTop: spacing.sm,
+  },
+  preferenceState: {
+    color: colors.subtext,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: spacing.xs,
   },
   heroCard: {
     backgroundColor: colors.panelAlt,

@@ -32,6 +32,7 @@ export default function App() {
           onBack={() => app.setSelectedIssue(null)}
           onToggleSaved={() => app.toggleSaved(app.selectedIssue!.id)}
           onMarkUnread={() => app.markUnread(app.selectedIssue!.id)}
+          onDismiss={() => app.dismissIssue(app.selectedIssue!.id)}
         />
       </SafeAreaView>
     );
@@ -49,6 +50,8 @@ export default function App() {
             stacks={app.preferences.stacks}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
+            onDismissIssue={app.dismissIssue}
+            hideReadIssues={app.preferences.hideReadIssues}
           />
         )}
 
@@ -59,11 +62,16 @@ export default function App() {
             mode={app.preferences.languageMode}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
+            onRestoreDismissed={app.restoreDismissed}
           />
         )}
 
         {app.currentTab === "notifications" && (
-          <NotificationsScreen issues={app.notifications} onOpen={app.openIssue} />
+          <NotificationsScreen
+            issues={app.notifications}
+            onOpen={app.openIssue}
+            states={app.states}
+          />
         )}
 
         {app.currentTab === "settings" && (

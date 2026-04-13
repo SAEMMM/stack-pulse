@@ -95,6 +95,23 @@ export function SettingsScreen({
           <Text style={styles.optionBody}>Major까지 포함해 더 넓게 수신</Text>
         </Pressable>
       </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Feed behavior</Text>
+        <Pressable
+          style={[styles.option, preferences.hideReadIssues && styles.optionSelected]}
+          onPress={() =>
+            onChange({ ...preferences, hideReadIssues: !preferences.hideReadIssues })
+          }
+        >
+          <Text style={styles.optionTitle}>읽은 이슈 숨기기</Text>
+          <Text style={styles.optionBody}>
+            {preferences.hideReadIssues
+              ? "피드에서 읽은 이슈를 자동으로 숨기고 있습니다."
+              : "읽은 이슈도 계속 피드에 보여주고 있습니다."}
+          </Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }

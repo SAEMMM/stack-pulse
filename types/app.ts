@@ -18,6 +18,7 @@ export type UserPreferences = {
   stacks: string[];
   languageMode: LanguageMode;
   pushLevel: "important_only" | "important_and_major";
+  hideReadIssues: boolean;
 };
 
 export type Issue = {
@@ -56,4 +57,5 @@ export type IssueState = {
   isRead: boolean;
   isSaved: boolean;
   isNotified: boolean;
+  isDismissed: boolean;
 };

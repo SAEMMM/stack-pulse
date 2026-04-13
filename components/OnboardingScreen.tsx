@@ -108,6 +108,7 @@ export function OnboardingScreen({
             languageMode,
             pushLevel,
             stacks,
+            hideReadIssues: false,
           })
         }
       >
