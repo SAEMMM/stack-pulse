@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "android": "expo start --android",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "content:build": "node scripts/generate-issues.mjs"
   },
   "dependencies": {
     "expo": "~53.0.9",

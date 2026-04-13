@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { availableStacks } from "../data/mockIssues";
 import { colors, spacing } from "../constants/theme";
+import { availableStacks } from "../lib/issues";
 import { LanguageMode, UserPreferences, UserRole } from "../types/app";
 
 const roleOptions: { label: string; value: UserRole; caption: string }[] = [

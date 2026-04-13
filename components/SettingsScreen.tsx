@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { availableStacks } from "../data/mockIssues";
 import { colors, spacing } from "../constants/theme";
+import { availableStacks } from "../lib/issues";
 import { UserPreferences } from "../types/app";
 
 export function SettingsScreen({

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { mockIssues } from "../data/mockIssues";
+import { generatedIssues } from "../lib/issues";
 import { AppTab, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
 
@@ -12,7 +12,7 @@ const defaultPreferences: UserPreferences = {
 
 function createInitialState(): Record<string, IssueState> {
   return Object.fromEntries(
-    mockIssues.map((issue) => [
+    generatedIssues.map((issue) => [
       issue.id,
       {
         issueId: issue.id,
@@ -32,7 +32,7 @@ export function useStackPulseApp() {
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
 
   const sortedIssues = useMemo(
-    () => sortIssues(mockIssues, states, preferences.stacks),
+    () => sortIssues(generatedIssues, states, preferences.stacks),
     [preferences.stacks, states],
   );
 
