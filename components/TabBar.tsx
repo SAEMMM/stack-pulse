@@ -36,16 +36,21 @@ export function TabBar({
 
 const styles = StyleSheet.create({
   wrap: {
-    backgroundColor: colors.panel,
-    borderColor: colors.border,
+    backgroundColor: colors.panelAlt,
+    borderColor: colors.accentStrong,
     borderRadius: 999,
-    borderWidth: 1,
+    borderWidth: 1.5,
     bottom: 24,
     flexDirection: "row",
     left: 16,
-    padding: 6,
+    padding: 7,
     position: "absolute",
     right: 16,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.48,
+    shadowRadius: 26,
+    elevation: 12,
   },
   tab: {
     alignItems: "center",
@@ -54,7 +59,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   tabActive: {
-    backgroundColor: colors.text,
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accent,
+    borderWidth: 1,
   },
   label: {
     color: colors.subtext,
@@ -62,6 +69,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   labelActive: {
-    color: "#ffffff",
+    color: colors.accentStrong,
   },
 });

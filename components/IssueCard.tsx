@@ -63,16 +63,21 @@ export function IssueCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.panelElevated,
     borderColor: colors.border,
     borderRadius: 24,
     borderWidth: 1,
     gap: spacing.xs,
     marginBottom: spacing.md,
     padding: spacing.md,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.32,
+    shadowRadius: 18,
+    elevation: 6,
   },
   readCard: {
-    opacity: 0.82,
+    opacity: 0.88,
   },
   row: {
     alignItems: "center",
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   save: {
-    color: colors.accent,
+    color: colors.accentStrong,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -120,7 +125,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   action: {
-    color: colors.accent,
+    color: colors.accentStrong,
     fontSize: 15,
     fontWeight: "700",
     lineHeight: 22,
@@ -136,7 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   unreadDot: {
-    color: colors.text,
+    color: colors.accentStrong,
     fontSize: 12,
     fontWeight: "800",
     marginLeft: "auto",
