@@ -4,6 +4,7 @@ export type LanguageMode =
   | "en_summary_ko_interpretation";
 
 export type ContentLanguage = "en" | "ko";
+export type UiLanguage = "en" | "ko";
 
 export type UserRole = "frontend" | "fullstack" | "tech_lead";
 
@@ -16,6 +17,7 @@ export type AppTab = "feed" | "saved" | "notifications" | "settings";
 export type UserPreferences = {
   role: UserRole;
   stacks: string[];
+  uiLanguage: UiLanguage;
   languageMode: LanguageMode;
   pushLevel: "important_only" | "important_and_major";
   hideReadIssues: boolean;
@@ -26,6 +28,10 @@ export type Issue = {
   severity: Severity;
   tags: string[];
   originalTitle: string;
+  title: {
+    en: string;
+    ko: string;
+  };
   summary: {
     en: string;
     ko: string;

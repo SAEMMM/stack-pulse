@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { getLanguageModePreview } from "../lib/format";
-import { Issue, IssueState, LanguageMode } from "../types/app";
+import { getLanguageModePreview, getRoleLabel } from "../lib/format";
+import { Issue, IssueState, LanguageMode, UiLanguage, UserRole } from "../types/app";
 import { IssueCard } from "./IssueCard";
 
 type FeedFilter = "all" | "my_stack" | "security" | "breaking" | "unread";
@@ -11,46 +12,56 @@ export function FeedScreen({
   issues,
   states,
   mode,
+  uiLanguage,
   stacks,
+  role,
+  pushLevel,
   onPressIssue,
   onToggleSaved,
   hideReadIssues,
+  onChangeUiLanguage,
 }: {
   issues: Issue[];
   states: Record<string, IssueState>;
   mode: LanguageMode;
+  uiLanguage: UiLanguage;
   stacks: string[];
+  role: UserRole;
+  pushLevel: "important_only" | "important_and_major";
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
   hideReadIssues: boolean;
+  onChangeUiLanguage: (language: UiLanguage) => void;
 }) {
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
+  const english = uiLanguage === "en";
 
   const filterOptions = useMemo(
     () => [
-      { key: "all" as const, label: "All", count: issues.length },
+      { key: "all" as const, label: t("feed.filters.all"), count: issues.length },
       {
         key: "my_stack" as const,
-        label: "My Stack",
+        label: t("feed.filters.myStack"),
         count: issues.filter((issue) => issue.tags.some((tag) => stacks.includes(tag))).length,
       },
       {
         key: "security" as const,
-        label: "Security",
+        label: t("feed.filters.security"),
         count: issues.filter((issue) => issue.severity === "security").length,
       },
       {
         key: "breaking" as const,
-        label: "Breaking",
+        label: t("feed.filters.breaking"),
         count: issues.filter((issue) => issue.severity === "breaking").length,
       },
       {
         key: "unread" as const,
-        label: "Unread",
+        label: t("feed.filters.unread"),
         count: issues.filter((issue) => !states[issue.id]?.isRead).length,
       },
     ],
-    [issues, stacks, states],
+    [issues, stacks, states, t],
   );
 
   const filteredIssues = useMemo(() => {
@@ -69,31 +80,92 @@ export function FeedScreen({
     return issues;
   }, [activeFilter, issues, stacks, states]);
 
+  const alertQueue = useMemo(() => {
+    return issues.filter((issue) => {
+      if (pushLevel === "important_only") {
+        return issue.severity === "security" || issue.severity === "breaking";
+      }
+      return true;
+    });
+  }, [issues, pushLevel]);
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={styles.kicker}>Today&apos;s Pulse</Text>
-      <Text style={styles.title}>내 스택과 연결된 중요한 기술 이슈만 빠르게 봅니다.</Text>
+      <Text style={styles.kicker}>{t("feed.kicker")}</Text>
+      <View style={styles.languageSwitch}>
+        <Pressable
+          style={[styles.languageChip, uiLanguage === "ko" && styles.languageChipActive]}
+          onPress={() => onChangeUiLanguage("ko")}
+        >
+          <Text style={[styles.languageChipText, uiLanguage === "ko" && styles.languageChipTextActive]}>
+            {t("common.korean")}
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[styles.languageChip, uiLanguage === "en" && styles.languageChipActive]}
+          onPress={() => onChangeUiLanguage("en")}
+        >
+          <Text style={[styles.languageChipText, uiLanguage === "en" && styles.languageChipTextActive]}>
+            {t("common.english")}
+          </Text>
+        </Pressable>
+      </View>
+      <Text style={styles.title}>{t("feed.title")}</Text>
       <Text style={styles.subtext}>
-        선택된 스택: {stacks.join(", ")}. 요약보다 해석을 앞세워서 지금 판단이 필요한 이슈부터
-        정렬합니다.
+        {t("feed.subtitle", {
+          role: getRoleLabel(role, uiLanguage),
+          stacks: stacks.join(", "),
+        })}
       </Text>
       <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
       <Text style={styles.preferenceState}>
-        {hideReadIssues ? "읽은 이슈 숨김이 켜져 있습니다." : "읽은 이슈도 함께 표시됩니다."}
+        {hideReadIssues ? t("feed.hideReadOn") : t("feed.hideReadOff")}
       </Text>
 
-      <View style={styles.heroCard}>
-        <Text style={styles.heroLabel}>How to read</Text>
-        <Text style={styles.heroBody}>
-          Original은 사실 확인용, Summary는 빠른 스캔용, Interpretation은 실무 판단용입니다.
+      <View style={styles.alertCard}>
+        <Text style={styles.alertLabel}>{t("feed.alertPolicy")}</Text>
+        <Text style={styles.alertTitle}>
+          {pushLevel === "important_only"
+            ? t("feed.alertImportantOnly")
+            : t("feed.alertExpanded")}
         </Text>
+        <View style={styles.alertMetaRow}>
+          <Text style={styles.alertMeta}>{t("feed.pushQueue", { count: alertQueue.length })}</Text>
+          <Text style={styles.alertMeta}>{pushLevel === "important_only" ? t("feed.focusedMode") : t("feed.expandedMode")}</Text>
+        </View>
       </View>
 
-      {filteredIssues.length > 0 && (
+      {alertQueue.length > 0 && (
+        <View style={styles.queueCard}>
+          <View style={styles.queueHeader}>
+            <Text style={styles.queueLabel}>{t("feed.pushCandidates")}</Text>
+            <Text style={styles.queueMeta}>{t("feed.queued", { count: alertQueue.length })}</Text>
+          </View>
+          {alertQueue.slice(0, 2).map((issue) => (
+            <Pressable
+              key={issue.id}
+              style={styles.queueItem}
+              onPress={() => onPressIssue(issue)}
+            >
+              <Text style={styles.queueSeverity}>{issue.severity.toUpperCase()}</Text>
+              <Text style={styles.queueTitle}>{english ? issue.title.en : issue.title.ko}</Text>
+              <Text style={styles.queueReason}>
+                {issue.severity === "security" && t("feed.securityReason")}
+                {issue.severity === "breaking" && t("feed.breakingReason")}
+                {issue.severity === "major" && t("feed.majorReason")}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
+      {filteredIssues.length > 0 && activeFilter === "all" && (
         <View style={styles.briefingCard}>
-          <Text style={styles.briefingLabel}>Priority Briefing</Text>
-          <Text style={styles.briefingTitle}>{filteredIssues[0].originalTitle}</Text>
-          <Text style={styles.briefingBody}>{filteredIssues[0].impact.reason.ko}</Text>
+          <Text style={styles.briefingLabel}>{t("feed.priorityBriefing")}</Text>
+          <Text style={styles.briefingTitle}>{english ? filteredIssues[0].title.en : filteredIssues[0].title.ko}</Text>
+          <Text style={styles.briefingBody}>
+            {english ? filteredIssues[0].impact.reason.en : filteredIssues[0].impact.reason.ko}
+          </Text>
           <View style={styles.briefingMetaRow}>
             <Text style={styles.briefingMeta}>
               {filteredIssues[0].severity.toUpperCase()} · {filteredIssues[0].impact.level.toUpperCase()} IMPACT
@@ -127,21 +199,19 @@ export function FeedScreen({
 
       <View style={styles.filterSummaryRow}>
         <Text style={styles.filterSummary}>
-          {activeFilter === "all" && "전체 이슈를 우선순위 기준으로 보여줍니다."}
-          {activeFilter === "my_stack" && "내 스택과 직접 연결된 이슈만 모아봅니다."}
-          {activeFilter === "security" && "보안 대응이 필요한 이슈만 빠르게 확인합니다."}
-          {activeFilter === "breaking" && "호환성이나 개발 규칙 변화 가능성이 큰 이슈입니다."}
-          {activeFilter === "unread" && "아직 읽지 않은 이슈만 다시 정리합니다."}
+          {activeFilter === "all" && t("feed.allSummary")}
+          {activeFilter === "my_stack" && t("feed.myStackSummary")}
+          {activeFilter === "security" && t("feed.securitySummary")}
+          {activeFilter === "breaking" && t("feed.breakingSummary")}
+          {activeFilter === "unread" && t("feed.unreadSummary")}
         </Text>
-        <Text style={styles.filterMeta}>{filteredIssues.length} issues</Text>
+        <Text style={styles.filterMeta}>{t("feed.issuesCount", { count: filteredIssues.length })}</Text>
       </View>
 
       {filteredIssues.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>현재 조건에 맞는 이슈가 없습니다.</Text>
-          <Text style={styles.emptyBody}>
-            스택 선택을 넓히거나 다른 필터로 전환하면 더 많은 이슈를 볼 수 있습니다.
-          </Text>
+          <Text style={styles.emptyTitle}>{t("feed.emptyTitle")}</Text>
+          <Text style={styles.emptyBody}>{t("feed.emptyBody")}</Text>
         </View>
       ) : (
         filteredIssues.map((issue) => (
@@ -150,6 +220,9 @@ export function FeedScreen({
             issue={issue}
             state={states[issue.id]}
             mode={mode}
+            stacks={stacks}
+            role={role}
+            variant="compact"
             onPress={() => onPressIssue(issue)}
             onToggleSaved={() => onToggleSaved(issue.id)}
           />
@@ -192,30 +265,125 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: spacing.sm,
   },
+  languageSwitch: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.panelElevated,
+    borderColor: colors.border,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    padding: 4,
+  },
+  languageChip: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  languageChipActive: {
+    backgroundColor: colors.accentSoft,
+  },
+  languageChipText: {
+    color: colors.subtext,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  languageChipTextActive: {
+    color: colors.accentStrong,
+  },
   preferenceState: {
     color: colors.subtext,
     fontSize: 12,
     lineHeight: 18,
     marginTop: spacing.xs,
   },
-  heroCard: {
+  alertCard: {
     backgroundColor: colors.panelAlt,
-    borderColor: colors.border,
-    borderWidth: 1,
+    borderColor: colors.accentSoft,
     borderRadius: 24,
-    marginVertical: spacing.lg,
+    borderWidth: 1,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
     padding: spacing.md,
   },
-  heroLabel: {
-    color: colors.text,
+  alertLabel: {
+    color: colors.accentStrong,
     fontSize: 12,
     fontWeight: "800",
     textTransform: "uppercase",
   },
-  heroBody: {
+  alertTitle: {
     color: colors.text,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 18,
+    fontWeight: "800",
+    lineHeight: 25,
+    marginTop: spacing.sm,
+  },
+  alertBody: {
+    color: colors.subtext,
+    fontSize: 14,
+    lineHeight: 21,
+    marginTop: spacing.sm,
+  },
+  alertMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  alertMeta: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  queueCard: {
+    backgroundColor: colors.panelElevated,
+    borderColor: colors.border,
+    borderRadius: 24,
+    borderWidth: 1,
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+  },
+  queueHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+  queueLabel: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  queueMeta: {
+    color: colors.subtext,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  queueItem: {
+    borderTopColor: colors.border,
+    borderTopWidth: 1,
+    paddingVertical: spacing.md,
+  },
+  queueSeverity: {
+    color: colors.accentStrong,
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  queueTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "800",
+    lineHeight: 23,
+    marginTop: spacing.xs,
+  },
+  queueReason: {
+    color: colors.subtext,
+    fontSize: 13,
+    lineHeight: 19,
     marginTop: spacing.xs,
   },
   briefingCard: {
@@ -248,6 +416,12 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     fontSize: 14,
     lineHeight: 21,
+    marginTop: spacing.sm,
+  },
+  briefingWhy: {
+    color: colors.text,
+    fontSize: 13,
+    lineHeight: 19,
     marginTop: spacing.sm,
   },
   briefingMetaRow: {

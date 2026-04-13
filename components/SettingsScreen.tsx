@@ -1,5 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
+import i18n from "../i18n";
 import { availableStacks } from "../lib/issues";
 import { UserPreferences } from "../types/app";
 
@@ -10,6 +12,7 @@ export function SettingsScreen({
   preferences: UserPreferences;
   onChange: (next: UserPreferences) => void;
 }) {
+  const { t } = useTranslation();
   function toggleStack(stack: string) {
     const stacks = preferences.stacks.includes(stack)
       ? preferences.stacks.filter((item) => item !== stack)
@@ -20,42 +23,48 @@ export function SettingsScreen({
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>개인화 기준을 바꾸면 피드 우선순위와 표현 언어가 함께 달라집니다.</Text>
+      <Text style={styles.title}>{t("settings.title")}</Text>
+      <Text style={styles.subtitle}>{t("settings.subtitle")}</Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Language mode</Text>
-        <Pressable
-          style={[styles.option, preferences.languageMode === "full_en" && styles.optionSelected]}
-          onPress={() => onChange({ ...preferences, languageMode: "full_en" })}
-        >
-          <Text style={styles.optionTitle}>Full English</Text>
-          <Text style={styles.optionBody}>원문, 요약, 해석, 액션 모두 영어</Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.option,
-            preferences.languageMode === "en_source_ko_all" && styles.optionSelected,
-          ]}
-          onPress={() => onChange({ ...preferences, languageMode: "en_source_ko_all" })}
-        >
-          <Text style={styles.optionTitle}>English source + Korean guide</Text>
-          <Text style={styles.optionBody}>원문은 영어, 판단 정보는 한국어</Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.option,
-            preferences.languageMode === "en_summary_ko_interpretation" && styles.optionSelected,
-          ]}
-          onPress={() => onChange({ ...preferences, languageMode: "en_summary_ko_interpretation" })}
-        >
-          <Text style={styles.optionTitle}>English summary + Korean interpretation</Text>
-          <Text style={styles.optionBody}>영어 감각 유지 + 해석은 한국어</Text>
-        </Pressable>
+        <Text style={styles.sectionTitle}>{t("settings.uiLanguage")}</Text>
+        <View style={styles.languageRow}>
+          <Pressable
+            style={[styles.languageChip, preferences.uiLanguage === "ko" && styles.languageChipSelected]}
+            onPress={() => {
+              i18n.changeLanguage("ko");
+              onChange({
+                ...preferences,
+                uiLanguage: "ko",
+                languageMode:
+                  preferences.languageMode === "full_en" ? "en_source_ko_all" : preferences.languageMode,
+              });
+            }}
+          >
+            <Text style={[styles.languageChipText, preferences.uiLanguage === "ko" && styles.languageChipTextSelected]}>
+              {t("common.korean")}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.languageChip, preferences.uiLanguage === "en" && styles.languageChipSelected]}
+            onPress={() => {
+              i18n.changeLanguage("en");
+              onChange({
+                ...preferences,
+                uiLanguage: "en",
+                languageMode: "full_en",
+              });
+            }}
+          >
+            <Text style={[styles.languageChipText, preferences.uiLanguage === "en" && styles.languageChipTextSelected]}>
+              {t("common.english")}
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>My stacks</Text>
+        <Text style={styles.sectionTitle}>{t("settings.myStacks")}</Text>
         <View style={styles.chips}>
           {availableStacks.map((stack) => {
             const selected = preferences.stacks.includes(stack);
@@ -73,7 +82,7 @@ export function SettingsScreen({
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Push level</Text>
+        <Text style={styles.sectionTitle}>{t("settings.pushLevel")}</Text>
         <Pressable
           style={[
             styles.option,
@@ -81,8 +90,8 @@ export function SettingsScreen({
           ]}
           onPress={() => onChange({ ...preferences, pushLevel: "important_only" })}
         >
-          <Text style={styles.optionTitle}>중요 이슈만</Text>
-          <Text style={styles.optionBody}>Security / Breaking 위주 알림</Text>
+          <Text style={styles.optionTitle}>{t("settings.importantOnlyTitle")}</Text>
+          <Text style={styles.optionBody}>{t("settings.importantOnlyBody")}</Text>
         </Pressable>
         <Pressable
           style={[
@@ -91,24 +100,22 @@ export function SettingsScreen({
           ]}
           onPress={() => onChange({ ...preferences, pushLevel: "important_and_major" })}
         >
-          <Text style={styles.optionTitle}>중요 + 주요</Text>
-          <Text style={styles.optionBody}>Major까지 포함해 더 넓게 수신</Text>
+          <Text style={styles.optionTitle}>{t("settings.importantMajorTitle")}</Text>
+          <Text style={styles.optionBody}>{t("settings.importantMajorBody")}</Text>
         </Pressable>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Feed behavior</Text>
+        <Text style={styles.sectionTitle}>{t("settings.feedBehavior")}</Text>
         <Pressable
           style={[styles.option, preferences.hideReadIssues && styles.optionSelected]}
           onPress={() =>
             onChange({ ...preferences, hideReadIssues: !preferences.hideReadIssues })
           }
         >
-          <Text style={styles.optionTitle}>읽은 이슈 숨기기</Text>
+          <Text style={styles.optionTitle}>{t("settings.hideReadTitle")}</Text>
           <Text style={styles.optionBody}>
-            {preferences.hideReadIssues
-              ? "피드에서 읽은 이슈를 자동으로 숨기고 있습니다."
-              : "읽은 이슈도 계속 피드에 보여주고 있습니다."}
+            {preferences.hideReadIssues ? t("settings.hideReadOn") : t("settings.hideReadOff")}
           </Text>
         </Pressable>
       </View>
@@ -178,6 +185,30 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
+  },
+  languageRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  languageChip: {
+    backgroundColor: colors.bg,
+    borderColor: colors.border,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  languageChipSelected: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accentStrong,
+  },
+  languageChipText: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  languageChipTextSelected: {
+    color: colors.accentStrong,
   },
   chip: {
     backgroundColor: colors.bg,

@@ -1,43 +1,49 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import {
-  getAction,
-  getActionLanguage,
   getImpactAudiencePreview,
   getImpactColors,
   getImpactLabel,
-  getInterpretation,
-  getInterpretationLanguage,
-  getLanguageLabel,
+  getDisplayTitle,
   getSeverityColors,
   getSeverityLabel,
-  getSummary,
-  getSummaryLanguage,
+  getPrimaryKeyLine,
 } from "../lib/format";
-import { Issue, IssueState, LanguageMode } from "../types/app";
+import { Issue, IssueState, LanguageMode, UserRole } from "../types/app";
 import { Badge } from "./Badge";
 
 export function IssueCard({
   issue,
   state,
   mode,
+  stacks,
+  role,
+  variant = "compact",
   onPress,
   onToggleSaved,
 }: {
   issue: Issue;
   state: IssueState;
   mode: LanguageMode;
+  stacks: string[];
+  role: UserRole;
+  variant?: "compact" | "expanded";
   onPress: () => void;
   onToggleSaved: () => void;
 }) {
+  const { t, i18n } = useTranslation();
+  const english = i18n.language === "en";
   const severityColors = getSeverityColors(issue);
-  const interpretation = getInterpretation(issue, mode);
-  const action = getAction(issue, mode);
-  const summary = getSummary(issue, mode);
-  const summaryLanguage = getLanguageLabel(getSummaryLanguage(mode));
-  const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
-  const actionLanguage = getLanguageLabel(getActionLanguage(mode));
   const impactColors = getImpactColors(issue);
+  const keyLine = getPrimaryKeyLine(issue, mode);
+  const displayTitle = getDisplayTitle(issue, mode);
+  const originalLabel = t("common.headline");
+  const keyPointLabel = t("common.keyPoint");
+  const saveLabel = state.isSaved
+    ? t("common.saved")
+    : t("common.save");
+  const newLabel = t("common.new");
 
   return (
     <Pressable style={[styles.card, state.isRead && styles.readCard]} onPress={onPress}>
@@ -49,7 +55,7 @@ export function IssueCard({
         />
         <Text style={styles.meta}>{issue.tags.join(" • ")}</Text>
         <Pressable onPress={onToggleSaved} hitSlop={10}>
-          <Text style={styles.save}>{state.isSaved ? "Saved" : "Save"}</Text>
+          <Text style={styles.save}>{saveLabel}</Text>
         </Pressable>
       </View>
 
@@ -62,26 +68,24 @@ export function IssueCard({
         <Text style={styles.impactAudience}>{getImpactAudiencePreview(issue)}</Text>
       </View>
 
-      <Text style={styles.originalLabel}>Original</Text>
-      <Text style={styles.originalTitle}>{issue.originalTitle}</Text>
+      <Text style={styles.originalLabel}>{originalLabel}</Text>
+      <Text style={styles.originalTitle}>{displayTitle}</Text>
 
-      <Text style={styles.sectionLabel}>Summary · {summaryLanguage}</Text>
-      <Text style={styles.summary}>{summary}</Text>
-
-      <Text style={styles.sectionLabel}>Interpretation · {interpretationLanguage}</Text>
-      {interpretation.slice(0, 2).map((line) => (
-        <Text key={line} style={styles.body}>
-          • {line}
+      {variant === "compact" ? (
+        <Text numberOfLines={1} style={styles.keyLine}>
+          {keyLine}
         </Text>
-      ))}
-
-      <Text style={styles.sectionLabel}>Action · {actionLanguage}</Text>
-      <Text style={styles.action}>{action[0]}</Text>
+      ) : (
+        <>
+          <Text style={styles.keyLineLabel}>{keyPointLabel}</Text>
+          <Text style={styles.keyLineExpanded}>{keyLine}</Text>
+        </>
+      )}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>{issue.sourceCount} sources</Text>
+        <Text style={styles.footerText}>{t("common.sourceCount", { count: issue.sourceCount })}</Text>
         <Text style={styles.footerText}>{issue.readTime}</Text>
-        {!state.isRead && <Text style={styles.unreadDot}>New</Text>}
+        {!state.isRead && <Text style={styles.unreadDot}>{newLabel}</Text>}
       </View>
     </Pressable>
   );
@@ -160,18 +164,22 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     textTransform: "uppercase",
   },
-  summary: {
+  keyLine: {
     color: colors.text,
     fontSize: 15,
+    fontWeight: "700",
     lineHeight: 22,
+    marginTop: spacing.xs,
   },
-  body: {
+  keyLineLabel: {
+    color: colors.subtext,
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: spacing.xs,
+    textTransform: "uppercase",
+  },
+  keyLineExpanded: {
     color: colors.text,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  action: {
-    color: colors.accentStrong,
     fontSize: 15,
     fontWeight: "700",
     lineHeight: 22,

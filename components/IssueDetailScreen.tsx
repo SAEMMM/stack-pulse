@@ -1,8 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import {
   getAction,
   getActionLanguage,
+  getDisplayTitle,
   getImpactAudiencePreview,
   getImpactColors,
   getImpactLabel,
@@ -34,6 +36,7 @@ export function IssueDetailScreen({
   onToggleSaved: () => void;
   onMarkUnread: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const severityColors = getSeverityColors(issue);
   const interpretation = getInterpretation(issue, mode);
   const actions = getAction(issue, mode);
@@ -43,11 +46,13 @@ export function IssueDetailScreen({
   const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
   const actionLanguage = getLanguageLabel(getActionLanguage(mode));
   const impactColors = getImpactColors(issue);
+  const displayTitle = getDisplayTitle(issue, mode);
+  const english = i18n.language === "en";
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Pressable onPress={onBack}>
-        <Text style={styles.back}>Back to feed</Text>
+        <Text style={styles.back}>{t("detail.back")}</Text>
       </Pressable>
 
       <View style={styles.headerRow}>
@@ -60,14 +65,15 @@ export function IssueDetailScreen({
       </View>
       <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
 
-      <Text style={styles.originalLabel}>Original</Text>
-      <Text style={styles.originalTitle}>{issue.originalTitle}</Text>
+      <Text style={styles.originalLabel}>{t("common.headline")}</Text>
+      <Text style={styles.originalTitle}>{displayTitle}</Text>
+      <Text style={styles.originalMeta}>{t("detail.originalSourceTitle", { title: issue.originalTitle })}</Text>
 
-      <Section title={`Summary · ${summaryLanguage}`}>
+      <Section title={`${t("detail.summary")} · ${summaryLanguage}`}>
         <Text style={styles.body}>{summary}</Text>
       </Section>
 
-      <Section title={`Interpretation · ${interpretationLanguage}`}>
+      <Section title={`${t("detail.interpretation")} · ${interpretationLanguage}`}>
         {interpretation.map((line) => (
           <Text key={line} style={styles.body}>
             • {line}
@@ -75,7 +81,7 @@ export function IssueDetailScreen({
         ))}
       </Section>
 
-      <Section title="Impact">
+      <Section title={t("detail.impact")}>
         <View style={styles.impactHeader}>
           <View style={[styles.impactPill, { backgroundColor: impactColors.bg }]}>
             <Text style={[styles.impactPillText, { color: impactColors.text }]}>
@@ -96,11 +102,11 @@ export function IssueDetailScreen({
             ]}
           />
         </View>
-        <Text style={styles.body}>Audience: {issue.impact.audience.join(", ")}</Text>
+        <Text style={styles.body}>{t("detail.audience")}: {issue.impact.audience.join(", ")}</Text>
         <Text style={styles.body}>{impactReason}</Text>
       </Section>
 
-      <Section title={`Action · ${actionLanguage}`}>
+      <Section title={`${t("detail.action")} · ${actionLanguage}`}>
         {actions.map((line) => (
           <Text key={line} style={styles.action}>
             • {line}
@@ -108,20 +114,22 @@ export function IssueDetailScreen({
         ))}
       </Section>
 
-      <Section title="Sources">
+      <Section title={t("detail.sources")}>
         {issue.sources.map((source) => (
-          <Text key={source.url} style={styles.source}>
-            • {source.title}
-          </Text>
+          <Pressable key={source.url} onPress={() => Linking.openURL(source.url)}>
+            <Text style={styles.source}>• {source.title}</Text>
+          </Pressable>
         ))}
       </Section>
 
       <View style={styles.buttonRow}>
         <Pressable style={styles.primaryButton} onPress={onToggleSaved}>
-          <Text style={styles.primaryButtonText}>{state.isSaved ? "Remove saved" : "Save issue"}</Text>
+          <Text style={styles.primaryButtonText}>
+            {state.isSaved ? t("detail.removeSaved") : t("detail.saveIssue")}
+          </Text>
         </Pressable>
         <Pressable style={styles.secondaryButton} onPress={onMarkUnread}>
-          <Text style={styles.secondaryButtonText}>Mark unread</Text>
+          <Text style={styles.secondaryButtonText}>{t("detail.markUnread")}</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -181,6 +189,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 40,
     marginTop: spacing.sm,
+  },
+  originalMeta: {
+    color: colors.subtext,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: spacing.xs,
   },
   section: {
     backgroundColor: colors.panelElevated,
@@ -260,7 +274,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   source: {
-    color: colors.text,
+    color: colors.accentStrong,
     fontSize: 15,
     lineHeight: 22,
     marginBottom: spacing.xs,

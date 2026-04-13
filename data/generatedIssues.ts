@@ -9,6 +9,10 @@ export const generatedIssues: Issue[] = [
       "Node.js"
     ],
     "originalTitle": "TypeScript ecosystem package disclosed a supply-chain vulnerability",
+    "title": {
+      "en": "Supply-chain risk hits a TypeScript-adjacent package",
+      "ko": "TypeScript 인접 패키지 공급망 취약점, CI 점검 필요"
+    },
     "summary": {
       "en": "A supply-chain vulnerability affecting a TypeScript-adjacent package has been disclosed.",
       "ko": "TypeScript 생태계 인접 패키지에서 공급망 취약점이 공개되었습니다."
@@ -64,6 +68,10 @@ export const generatedIssues: Issue[] = [
       "Vercel"
     ],
     "originalTitle": "Next.js 16.2 released",
+    "title": {
+      "en": "Next.js 16.2 sharpens App Router performance",
+      "ko": "Next.js 16.2, App Router 성능 개선 폭 커졌다"
+    },
     "summary": {
       "en": "Next.js 16.2 adds practical performance wins for App Router teams.",
       "ko": "Next.js 16.2는 App Router 팀에 실질적인 성능 개선을 제공합니다."
@@ -122,6 +130,10 @@ export const generatedIssues: Issue[] = [
       "React"
     ],
     "originalTitle": "React Compiler RFC updated with stricter escape hatches",
+    "title": {
+      "en": "React Compiler tightens escape hatch expectations",
+      "ko": "React Compiler 규칙 강화, 기존 패턴 재점검 필요"
+    },
     "summary": {
       "en": "The React Compiler RFC was updated with stricter patterns around escape hatches.",
       "ko": "React Compiler RFC가 escape hatch 사용 조건을 더 엄격하게 조정했습니다."

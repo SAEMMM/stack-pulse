@@ -1,27 +1,33 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { Issue, IssueState, LanguageMode } from "../types/app";
+import { Issue, IssueState, LanguageMode, UserRole } from "../types/app";
 import { IssueCard } from "./IssueCard";
 
 export function SavedScreen({
   issues,
   states,
   mode,
+  stacks,
+  role,
   onPressIssue,
   onToggleSaved,
 }: {
   issues: Issue[];
   states: Record<string, IssueState>;
   mode: LanguageMode;
+  stacks: string[];
+  role: UserRole;
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Saved issues</Text>
-      <Text style={styles.subtitle}>다시 검토하거나 팀에 공유할 이슈를 모아둡니다.</Text>
+      <Text style={styles.title}>{t("saved.title")}</Text>
+      <Text style={styles.subtitle}>{t("saved.subtitle")}</Text>
       {issues.length === 0 ? (
-        <Text style={styles.empty}>저장된 이슈가 아직 없습니다.</Text>
+        <Text style={styles.empty}>{t("saved.empty")}</Text>
       ) : (
         issues.map((issue) => (
           <IssueCard
@@ -29,6 +35,9 @@ export function SavedScreen({
             issue={issue}
             state={states[issue.id]}
             mode={mode}
+            stacks={stacks}
+            role={role}
+            variant="expanded"
             onPress={() => onPressIssue(issue)}
             onToggleSaved={() => onToggleSaved(issue.id)}
           />

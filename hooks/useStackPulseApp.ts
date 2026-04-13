@@ -6,6 +6,7 @@ import { sortIssues } from "../lib/format";
 const defaultPreferences: UserPreferences = {
   role: "frontend",
   stacks: ["React", "Next.js", "TypeScript"],
+  uiLanguage: "ko",
   languageMode: "en_source_ko_all",
   pushLevel: "important_only",
   hideReadIssues: false,

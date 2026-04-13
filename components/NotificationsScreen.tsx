@@ -1,22 +1,33 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { getSeverityColors, getSeverityLabel } from "../lib/format";
-import { Issue, IssueState } from "../types/app";
+import { getDisplayTitle, getSeverityColors, getSeverityLabel } from "../lib/format";
+import { Issue, IssueState, LanguageMode } from "../types/app";
 import { Badge } from "./Badge";
 
 export function NotificationsScreen({
   issues,
   onOpen,
   states,
+  pushLevel,
+  mode,
 }: {
   issues: Issue[];
   onOpen: (issue: Issue) => void;
   states: Record<string, IssueState>;
+  pushLevel: "important_only" | "important_and_major";
+  mode: LanguageMode;
 }) {
+  const { t, i18n } = useTranslation();
+  const english = i18n.language === "en";
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Notifications</Text>
-      <Text style={styles.subtitle}>푸시 기준으로 발송된 중요 이슈 기록입니다.</Text>
+      <Text style={styles.title}>{t("notifications.title")}</Text>
+      <Text style={styles.subtitle}>
+        {pushLevel === "important_only"
+          ? t("notifications.importantOnly")
+          : t("notifications.importantMajor")}
+      </Text>
       {issues.map((issue) => {
         const severityColors = getSeverityColors(issue);
         return (
@@ -28,12 +39,13 @@ export function NotificationsScreen({
                 color={severityColors.text}
               />
               <Text style={styles.timestamp}>
-                {states[issue.id]?.isRead ? "Read" : "Unread"} ·{" "}
+                {states[issue.id]?.isRead ? t("notifications.read") : t("notifications.unread")}{" "}
+                ·{" "}
                 {new Date(issue.publishedAt).toLocaleDateString()}
               </Text>
             </View>
-            <Text style={styles.original}>{issue.originalTitle}</Text>
-            <Text style={styles.summary}>{issue.summary.ko}</Text>
+            <Text style={styles.original}>{getDisplayTitle(issue, mode)}</Text>
+            <Text style={styles.summary}>{english ? issue.summary.en : issue.summary.ko}</Text>
           </Pressable>
         );
       })}

@@ -33,6 +33,7 @@ function mergeIssue(group) {
     severity: latest.severity,
     tags: unique(group.flatMap((item) => item.tags)),
     originalTitle: latest.originalTitle,
+    title: enrichment.title,
     summary: enrichment.summary,
     interpretation,
     action,

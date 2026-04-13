@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
 import { FeedScreen } from "./components/FeedScreen";
 import { IssueDetailScreen } from "./components/IssueDetailScreen";
@@ -8,9 +9,24 @@ import { SettingsScreen } from "./components/SettingsScreen";
 import { TabBar } from "./components/TabBar";
 import { colors } from "./constants/theme";
 import { useStackPulseApp } from "./hooks/useStackPulseApp";
+import "./i18n";
+import i18n from "./i18n";
+import { UiLanguage } from "./types/app";
 
 export default function App() {
   const app = useStackPulseApp();
+
+  useEffect(() => {
+    i18n.changeLanguage(app.preferences.uiLanguage);
+  }, [app.preferences.uiLanguage]);
+
+  function changeUiLanguage(language: UiLanguage) {
+    app.setPreferences({
+      ...app.preferences,
+      uiLanguage: language,
+      languageMode: language === "en" ? "full_en" : "en_source_ko_all",
+    });
+  }
 
   if (!app.isOnboarded) {
     return (
@@ -46,10 +62,14 @@ export default function App() {
             issues={app.sortedIssues}
             states={app.states}
             mode={app.preferences.languageMode}
+            uiLanguage={app.preferences.uiLanguage}
             stacks={app.preferences.stacks}
+            role={app.preferences.role}
+            pushLevel={app.preferences.pushLevel}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
             hideReadIssues={app.preferences.hideReadIssues}
+            onChangeUiLanguage={changeUiLanguage}
           />
         )}
 
@@ -58,6 +78,8 @@ export default function App() {
             issues={app.savedIssues}
             states={app.states}
             mode={app.preferences.languageMode}
+            stacks={app.preferences.stacks}
+            role={app.preferences.role}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
           />
@@ -68,6 +90,8 @@ export default function App() {
             issues={app.notifications}
             onOpen={app.openIssue}
             states={app.states}
+            pushLevel={app.preferences.pushLevel}
+            mode={app.preferences.languageMode}
           />
         )}
 
@@ -75,7 +99,11 @@ export default function App() {
           <SettingsScreen preferences={app.preferences} onChange={app.setPreferences} />
         )}
 
-        <TabBar currentTab={app.currentTab} onChange={app.setCurrentTab} />
+        <TabBar
+          currentTab={app.currentTab}
+          mode={app.preferences.uiLanguage}
+          onChange={app.setCurrentTab}
+        />
       </View>
     </SafeAreaView>
   );

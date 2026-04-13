@@ -1,21 +1,25 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { AppTab } from "../types/app";
-
-const tabs: { key: AppTab; label: string }[] = [
-  { key: "feed", label: "Feed" },
-  { key: "saved", label: "Saved" },
-  { key: "notifications", label: "Alerts" },
-  { key: "settings", label: "Settings" },
-];
+import { AppTab, UiLanguage } from "../types/app";
 
 export function TabBar({
   currentTab,
+  mode,
   onChange,
 }: {
   currentTab: AppTab;
+  mode: UiLanguage;
   onChange: (tab: AppTab) => void;
 }) {
+  const { t } = useTranslation();
+  const tabs: { key: AppTab; label: string }[] = [
+    { key: "feed", label: t("tabs.feed") },
+    { key: "saved", label: t("tabs.saved") },
+    { key: "notifications", label: t("tabs.notifications") },
+    { key: "settings", label: t("tabs.settings") },
+  ];
+
   return (
     <View style={styles.wrap}>
       {tabs.map((tab) => {
