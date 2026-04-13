@@ -20,7 +20,6 @@ function createInitialState(): Record<string, IssueState> {
         isRead: false,
         isSaved: issue.id === "typescript-vuln",
         isNotified: issue.severity !== "major",
-        isDismissed: false,
       },
     ]),
   );
@@ -42,7 +41,6 @@ export function useStackPulseApp() {
     () =>
       sortedIssues.filter((issue) => {
         const state = states[issue.id];
-        if (state?.isDismissed) return false;
         if (preferences.hideReadIssues && state?.isRead) return false;
         return true;
       }),
@@ -57,11 +55,6 @@ export function useStackPulseApp() {
   const notifications = useMemo(
     () => visibleIssues.filter((issue) => states[issue.id]?.isNotified),
     [visibleIssues, states],
-  );
-
-  const dismissedIssues = useMemo(
-    () => sortedIssues.filter((issue) => states[issue.id]?.isDismissed),
-    [sortedIssues, states],
   );
 
   function completeOnboarding(next: UserPreferences) {
@@ -91,29 +84,11 @@ export function useStackPulseApp() {
     }));
   }
 
-  function dismissIssue(issueId: string) {
-    setStates((prev) => ({
-      ...prev,
-      [issueId]: { ...prev[issueId], isDismissed: true },
-    }));
-    setSelectedIssue((current) => (current?.id === issueId ? null : current));
-  }
-
-  function restoreDismissed(issueId: string) {
-    setStates((prev) => ({
-      ...prev,
-      [issueId]: { ...prev[issueId], isDismissed: false },
-    }));
-  }
-
   return {
     currentTab,
-    dismissIssue,
-    dismissedIssues,
     isOnboarded,
     notifications,
     preferences,
-    restoreDismissed,
     savedIssues,
     selectedIssue,
     setCurrentTab,

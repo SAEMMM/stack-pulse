@@ -26,7 +26,6 @@ export function IssueDetailScreen({
   onBack,
   onToggleSaved,
   onMarkUnread,
-  onDismiss,
 }: {
   issue: Issue;
   state: IssueState;
@@ -34,7 +33,6 @@ export function IssueDetailScreen({
   onBack: () => void;
   onToggleSaved: () => void;
   onMarkUnread: () => void;
-  onDismiss: () => void;
 }) {
   const severityColors = getSeverityColors(issue);
   const interpretation = getInterpretation(issue, mode);
@@ -124,9 +122,6 @@ export function IssueDetailScreen({
         </Pressable>
         <Pressable style={styles.secondaryButton} onPress={onMarkUnread}>
           <Text style={styles.secondaryButtonText}>Mark unread</Text>
-        </Pressable>
-        <Pressable style={styles.tertiaryButton} onPress={onDismiss}>
-          <Text style={styles.tertiaryButtonText}>Hide from feed</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -300,19 +295,6 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: colors.text,
-    fontSize: 15,
-    fontWeight: "800",
-  },
-  tertiaryButton: {
-    alignItems: "center",
-    backgroundColor: colors.bg,
-    borderColor: colors.border,
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingVertical: 15,
-  },
-  tertiaryButtonText: {
-    color: colors.subtext,
     fontSize: 15,
     fontWeight: "800",
   },

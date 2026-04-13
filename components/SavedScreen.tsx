@@ -9,14 +9,12 @@ export function SavedScreen({
   mode,
   onPressIssue,
   onToggleSaved,
-  onRestoreDismissed,
 }: {
   issues: Issue[];
   states: Record<string, IssueState>;
   mode: LanguageMode;
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
-  onRestoreDismissed: (issueId: string) => void;
 }) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -33,7 +31,6 @@ export function SavedScreen({
             mode={mode}
             onPress={() => onPressIssue(issue)}
             onToggleSaved={() => onToggleSaved(issue.id)}
-            onDismiss={() => onRestoreDismissed(issue.id)}
           />
         ))
       )}

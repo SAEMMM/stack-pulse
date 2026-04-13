@@ -23,14 +23,12 @@ export function IssueCard({
   mode,
   onPress,
   onToggleSaved,
-  onDismiss,
 }: {
   issue: Issue;
   state: IssueState;
   mode: LanguageMode;
   onPress: () => void;
   onToggleSaved: () => void;
-  onDismiss: () => void;
 }) {
   const severityColors = getSeverityColors(issue);
   const interpretation = getInterpretation(issue, mode);
@@ -52,9 +50,6 @@ export function IssueCard({
         <Text style={styles.meta}>{issue.tags.join(" • ")}</Text>
         <Pressable onPress={onToggleSaved} hitSlop={10}>
           <Text style={styles.save}>{state.isSaved ? "Saved" : "Save"}</Text>
-        </Pressable>
-        <Pressable onPress={onDismiss} hitSlop={10}>
-          <Text style={styles.dismiss}>Hide</Text>
         </Pressable>
       </View>
 
@@ -123,11 +118,6 @@ const styles = StyleSheet.create({
   },
   save: {
     color: colors.accentStrong,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  dismiss: {
-    color: colors.subtext,
     fontSize: 13,
     fontWeight: "700",
   },

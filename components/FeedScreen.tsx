@@ -14,7 +14,6 @@ export function FeedScreen({
   stacks,
   onPressIssue,
   onToggleSaved,
-  onDismissIssue,
   hideReadIssues,
 }: {
   issues: Issue[];
@@ -23,7 +22,6 @@ export function FeedScreen({
   stacks: string[];
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
-  onDismissIssue: (issueId: string) => void;
   hideReadIssues: boolean;
 }) {
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
@@ -91,6 +89,20 @@ export function FeedScreen({
         </Text>
       </View>
 
+      {filteredIssues.length > 0 && (
+        <View style={styles.briefingCard}>
+          <Text style={styles.briefingLabel}>Priority Briefing</Text>
+          <Text style={styles.briefingTitle}>{filteredIssues[0].originalTitle}</Text>
+          <Text style={styles.briefingBody}>{filteredIssues[0].impact.reason.ko}</Text>
+          <View style={styles.briefingMetaRow}>
+            <Text style={styles.briefingMeta}>
+              {filteredIssues[0].severity.toUpperCase()} · {filteredIssues[0].impact.level.toUpperCase()} IMPACT
+            </Text>
+            <Text style={styles.briefingMeta}>{filteredIssues[0].tags.slice(0, 2).join(" • ")}</Text>
+          </View>
+        </View>
+      )}
+
       <View style={styles.filterRow}>
         {filterOptions.map((filter) => {
           const selected = filter.key === activeFilter;
@@ -140,7 +152,6 @@ export function FeedScreen({
             mode={mode}
             onPress={() => onPressIssue(issue)}
             onToggleSaved={() => onToggleSaved(issue.id)}
-            onDismiss={() => onDismissIssue(issue.id)}
           />
         ))
       )}
@@ -206,6 +217,49 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginTop: spacing.xs,
+  },
+  briefingCard: {
+    backgroundColor: colors.panelElevated,
+    borderColor: colors.accentSoft,
+    borderRadius: 24,
+    borderWidth: 1,
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    elevation: 5,
+  },
+  briefingLabel: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  briefingTitle: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: "800",
+    lineHeight: 28,
+    marginTop: spacing.sm,
+  },
+  briefingBody: {
+    color: colors.subtext,
+    fontSize: 14,
+    lineHeight: 21,
+    marginTop: spacing.sm,
+  },
+  briefingMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  briefingMeta: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "700",
   },
   filterRow: {
     flexDirection: "row",

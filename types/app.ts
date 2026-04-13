@@ -57,5 +57,4 @@ export type IssueState = {
   isRead: boolean;
   isSaved: boolean;
   isNotified: boolean;
-  isDismissed: boolean;
 };

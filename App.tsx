@@ -32,7 +32,6 @@ export default function App() {
           onBack={() => app.setSelectedIssue(null)}
           onToggleSaved={() => app.toggleSaved(app.selectedIssue!.id)}
           onMarkUnread={() => app.markUnread(app.selectedIssue!.id)}
-          onDismiss={() => app.dismissIssue(app.selectedIssue!.id)}
         />
       </SafeAreaView>
     );
@@ -50,7 +49,6 @@ export default function App() {
             stacks={app.preferences.stacks}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
-            onDismissIssue={app.dismissIssue}
             hideReadIssues={app.preferences.hideReadIssues}
           />
         )}
@@ -62,7 +60,6 @@ export default function App() {
             mode={app.preferences.languageMode}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
-            onRestoreDismissed={app.restoreDismissed}
           />
         )}
 
@@ -75,12 +72,7 @@ export default function App() {
         )}
 
         {app.currentTab === "settings" && (
-          <SettingsScreen
-            preferences={app.preferences}
-            onChange={app.setPreferences}
-            dismissedIssues={app.dismissedIssues}
-            onRestoreDismissed={app.restoreDismissed}
-          />
+          <SettingsScreen preferences={app.preferences} onChange={app.setPreferences} />
         )}
 
         <TabBar currentTab={app.currentTab} onChange={app.setCurrentTab} />
