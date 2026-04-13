@@ -3,6 +3,9 @@ import { colors, spacing } from "../constants/theme";
 import {
   getAction,
   getActionLanguage,
+  getImpactAudiencePreview,
+  getImpactColors,
+  getImpactLabel,
   getImpactReason,
   getInterpretation,
   getInterpretationLanguage,
@@ -41,6 +44,7 @@ export function IssueDetailScreen({
   const summaryLanguage = getLanguageLabel(getSummaryLanguage(mode));
   const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
   const actionLanguage = getLanguageLabel(getActionLanguage(mode));
+  const impactColors = getImpactColors(issue);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -74,7 +78,26 @@ export function IssueDetailScreen({
       </Section>
 
       <Section title="Impact">
-        <Text style={styles.body}>Impact level: {issue.impact.level}</Text>
+        <View style={styles.impactHeader}>
+          <View style={[styles.impactPill, { backgroundColor: impactColors.bg }]}>
+            <Text style={[styles.impactPillText, { color: impactColors.text }]}>
+              {getImpactLabel(issue)}
+            </Text>
+          </View>
+          <Text style={styles.impactAudience}>{getImpactAudiencePreview(issue)}</Text>
+        </View>
+        <View style={styles.impactMeter}>
+          <View
+            style={[
+              styles.impactMeterFill,
+              issue.impact.level === "high"
+                ? styles.impactMeterHigh
+                : issue.impact.level === "medium"
+                  ? styles.impactMeterMedium
+                  : styles.impactMeterLow,
+            ]}
+          />
+        </View>
         <Text style={styles.body}>Audience: {issue.impact.audience.join(", ")}</Text>
         <Text style={styles.body}>{impactReason}</Text>
       </Section>
@@ -183,6 +206,50 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginBottom: spacing.sm,
     textTransform: "uppercase",
+  },
+  impactHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  impactPill: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  impactPillText: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  impactAudience: {
+    color: colors.subtext,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  impactMeter: {
+    backgroundColor: colors.panelAlt,
+    borderRadius: 999,
+    height: 8,
+    marginBottom: spacing.md,
+    overflow: "hidden",
+  },
+  impactMeterFill: {
+    borderRadius: 999,
+    height: "100%",
+  },
+  impactMeterHigh: {
+    backgroundColor: colors.impactHigh,
+    width: "100%",
+  },
+  impactMeterMedium: {
+    backgroundColor: colors.impactMedium,
+    width: "68%",
+  },
+  impactMeterLow: {
+    backgroundColor: colors.impactLow,
+    width: "36%",
   },
   body: {
     color: colors.text,

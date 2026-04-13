@@ -17,6 +17,26 @@ export function getSeverityColors(issue: Issue) {
   return { bg: colors.majorSoft, text: colors.major };
 }
 
+export function getImpactLabel(issue: Issue) {
+  if (issue.impact.level === "high") return "High Impact";
+  if (issue.impact.level === "medium") return "Medium Impact";
+  return "Low Impact";
+}
+
+export function getImpactColors(issue: Issue) {
+  if (issue.impact.level === "high") {
+    return { bg: colors.impactHighSoft, text: colors.impactHigh };
+  }
+  if (issue.impact.level === "medium") {
+    return { bg: colors.impactMediumSoft, text: colors.impactMedium };
+  }
+  return { bg: colors.impactLowSoft, text: colors.impactLow };
+}
+
+export function getImpactAudiencePreview(issue: Issue) {
+  return issue.impact.audience.slice(0, 2).join(" · ");
+}
+
 export function getSummaryLanguage(mode: LanguageMode): ContentLanguage {
   if (mode === "full_en" || mode === "en_summary_ko_interpretation") {
     return "en";

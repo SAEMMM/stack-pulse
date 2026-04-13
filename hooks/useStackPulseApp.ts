@@ -59,6 +59,11 @@ export function useStackPulseApp() {
     [visibleIssues, states],
   );
 
+  const dismissedIssues = useMemo(
+    () => sortedIssues.filter((issue) => states[issue.id]?.isDismissed),
+    [sortedIssues, states],
+  );
+
   function completeOnboarding(next: UserPreferences) {
     setPreferences(next);
     setIsOnboarded(true);
@@ -104,6 +109,7 @@ export function useStackPulseApp() {
   return {
     currentTab,
     dismissIssue,
+    dismissedIssues,
     isOnboarded,
     notifications,
     preferences,

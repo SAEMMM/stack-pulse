@@ -75,7 +75,12 @@ export default function App() {
         )}
 
         {app.currentTab === "settings" && (
-          <SettingsScreen preferences={app.preferences} onChange={app.setPreferences} />
+          <SettingsScreen
+            preferences={app.preferences}
+            onChange={app.setPreferences}
+            dismissedIssues={app.dismissedIssues}
+            onRestoreDismissed={app.restoreDismissed}
+          />
         )}
 
         <TabBar currentTab={app.currentTab} onChange={app.setCurrentTab} />

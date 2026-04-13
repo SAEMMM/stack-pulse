@@ -3,6 +3,9 @@ import { colors, spacing } from "../constants/theme";
 import {
   getAction,
   getActionLanguage,
+  getImpactAudiencePreview,
+  getImpactColors,
+  getImpactLabel,
   getInterpretation,
   getInterpretationLanguage,
   getLanguageLabel,
@@ -36,6 +39,7 @@ export function IssueCard({
   const summaryLanguage = getLanguageLabel(getSummaryLanguage(mode));
   const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
   const actionLanguage = getLanguageLabel(getActionLanguage(mode));
+  const impactColors = getImpactColors(issue);
 
   return (
     <Pressable style={[styles.card, state.isRead && styles.readCard]} onPress={onPress}>
@@ -52,6 +56,15 @@ export function IssueCard({
         <Pressable onPress={onDismiss} hitSlop={10}>
           <Text style={styles.dismiss}>Hide</Text>
         </Pressable>
+      </View>
+
+      <View style={styles.impactRow}>
+        <View style={[styles.impactPill, { backgroundColor: impactColors.bg }]}>
+          <Text style={[styles.impactPillText, { color: impactColors.text }]}>
+            {getImpactLabel(issue)}
+          </Text>
+        </View>
+        <Text style={styles.impactAudience}>{getImpactAudiencePreview(issue)}</Text>
       </View>
 
       <Text style={styles.originalLabel}>Original</Text>
@@ -117,6 +130,26 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     fontSize: 13,
     fontWeight: "700",
+  },
+  impactRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  impactPill: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  impactPillText: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  impactAudience: {
+    color: colors.subtext,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "600",
   },
   originalLabel: {
     color: colors.subtext,

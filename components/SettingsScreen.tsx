@@ -1,14 +1,18 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, spacing } from "../constants/theme";
 import { availableStacks } from "../lib/issues";
-import { UserPreferences } from "../types/app";
+import { Issue, UserPreferences } from "../types/app";
 
 export function SettingsScreen({
   preferences,
   onChange,
+  dismissedIssues,
+  onRestoreDismissed,
 }: {
   preferences: UserPreferences;
   onChange: (next: UserPreferences) => void;
+  dismissedIssues: Issue[];
+  onRestoreDismissed: (issueId: string) => void;
 }) {
   function toggleStack(stack: string) {
     const stacks = preferences.stacks.includes(stack)
@@ -112,6 +116,28 @@ export function SettingsScreen({
           </Text>
         </Pressable>
       </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Hidden issues</Text>
+        {dismissedIssues.length === 0 ? (
+          <Text style={styles.emptyText}>숨긴 이슈가 아직 없습니다.</Text>
+        ) : (
+          dismissedIssues.map((issue) => (
+            <View key={issue.id} style={styles.hiddenItem}>
+              <View style={styles.hiddenTextWrap}>
+                <Text style={styles.hiddenTitle}>{issue.originalTitle}</Text>
+                <Text style={styles.hiddenMeta}>{issue.tags.join(" • ")}</Text>
+              </View>
+              <Pressable
+                style={styles.restoreButton}
+                onPress={() => onRestoreDismissed(issue.id)}
+              >
+                <Text style={styles.restoreButtonText}>Restore</Text>
+              </Pressable>
+            </View>
+          ))
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -198,5 +224,47 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: "#ffffff",
+  },
+  emptyText: {
+    color: colors.subtext,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  hiddenItem: {
+    alignItems: "center",
+    borderColor: colors.border,
+    borderRadius: 18,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
+  },
+  hiddenTextWrap: {
+    flex: 1,
+  },
+  hiddenTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
+  },
+  hiddenMeta: {
+    color: colors.subtext,
+    fontSize: 12,
+    marginTop: spacing.xs,
+  },
+  restoreButton: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accentStrong,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  restoreButtonText: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "800",
   },
 });

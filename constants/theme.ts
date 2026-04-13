@@ -15,6 +15,12 @@ export const colors = {
   breakingSoft: "#3a2d1d",
   major: "#8bbef5",
   majorSoft: "#18314b",
+  impactHigh: "#ff8f8f",
+  impactHighSoft: "#402330",
+  impactMedium: "#f1bf78",
+  impactMediumSoft: "#41311d",
+  impactLow: "#8bd0b2",
+  impactLowSoft: "#173a34",
   shadow: "#02060d",
 };
 
