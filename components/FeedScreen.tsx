@@ -80,15 +80,6 @@ export function FeedScreen({
     return issues;
   }, [activeFilter, issues, stacks, states]);
 
-  const alertQueue = useMemo(() => {
-    return issues.filter((issue) => {
-      if (pushLevel === "important_only") {
-        return issue.severity === "security" || issue.severity === "breaking";
-      }
-      return true;
-    });
-  }, [issues, pushLevel]);
-
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.kicker}>{t("feed.kicker")}</Text>
@@ -121,43 +112,6 @@ export function FeedScreen({
       <Text style={styles.preferenceState}>
         {hideReadIssues ? t("feed.hideReadOn") : t("feed.hideReadOff")}
       </Text>
-
-      <View style={styles.alertCard}>
-        <Text style={styles.alertLabel}>{t("feed.alertPolicy")}</Text>
-        <Text style={styles.alertTitle}>
-          {pushLevel === "important_only"
-            ? t("feed.alertImportantOnly")
-            : t("feed.alertExpanded")}
-        </Text>
-        <View style={styles.alertMetaRow}>
-          <Text style={styles.alertMeta}>{t("feed.pushQueue", { count: alertQueue.length })}</Text>
-          <Text style={styles.alertMeta}>{pushLevel === "important_only" ? t("feed.focusedMode") : t("feed.expandedMode")}</Text>
-        </View>
-      </View>
-
-      {alertQueue.length > 0 && (
-        <View style={styles.queueCard}>
-          <View style={styles.queueHeader}>
-            <Text style={styles.queueLabel}>{t("feed.pushCandidates")}</Text>
-            <Text style={styles.queueMeta}>{t("feed.queued", { count: alertQueue.length })}</Text>
-          </View>
-          {alertQueue.slice(0, 2).map((issue) => (
-            <Pressable
-              key={issue.id}
-              style={styles.queueItem}
-              onPress={() => onPressIssue(issue)}
-            >
-              <Text style={styles.queueSeverity}>{issue.severity.toUpperCase()}</Text>
-              <Text style={styles.queueTitle}>{english ? issue.title.en : issue.title.ko}</Text>
-              <Text style={styles.queueReason}>
-                {issue.severity === "security" && t("feed.securityReason")}
-                {issue.severity === "breaking" && t("feed.breakingReason")}
-                {issue.severity === "major" && t("feed.majorReason")}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
 
       {filteredIssues.length > 0 && activeFilter === "all" && (
         <View style={styles.briefingCard}>
@@ -296,94 +250,6 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     fontSize: 12,
     lineHeight: 18,
-    marginTop: spacing.xs,
-  },
-  alertCard: {
-    backgroundColor: colors.panelAlt,
-    borderColor: colors.accentSoft,
-    borderRadius: 24,
-    borderWidth: 1,
-    marginTop: spacing.lg,
-    marginBottom: spacing.lg,
-    padding: spacing.md,
-  },
-  alertLabel: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  alertTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: "800",
-    lineHeight: 25,
-    marginTop: spacing.sm,
-  },
-  alertBody: {
-    color: colors.subtext,
-    fontSize: 14,
-    lineHeight: 21,
-    marginTop: spacing.sm,
-  },
-  alertMetaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  alertMeta: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  queueCard: {
-    backgroundColor: colors.panelElevated,
-    borderColor: colors.border,
-    borderRadius: 24,
-    borderWidth: 1,
-    marginBottom: spacing.lg,
-    padding: spacing.md,
-  },
-  queueHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: spacing.sm,
-  },
-  queueLabel: {
-    color: colors.text,
-    fontSize: 13,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  queueMeta: {
-    color: colors.subtext,
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  queueItem: {
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    paddingVertical: spacing.md,
-  },
-  queueSeverity: {
-    color: colors.accentStrong,
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  queueTitle: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: "800",
-    lineHeight: 23,
-    marginTop: spacing.xs,
-  },
-  queueReason: {
-    color: colors.subtext,
-    fontSize: 13,
-    lineHeight: 19,
     marginTop: spacing.xs,
   },
   briefingCard: {
