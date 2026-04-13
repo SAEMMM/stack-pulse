@@ -1,6 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, spacing } from "../constants/theme";
-import { getAction, getInterpretation, getSeverityColors, getSeverityLabel, getSummary } from "../lib/format";
+import {
+  getAction,
+  getActionLanguage,
+  getInterpretation,
+  getInterpretationLanguage,
+  getLanguageLabel,
+  getSeverityColors,
+  getSeverityLabel,
+  getSummary,
+  getSummaryLanguage,
+} from "../lib/format";
 import { Issue, IssueState, LanguageMode } from "../types/app";
 import { Badge } from "./Badge";
 
@@ -21,6 +31,9 @@ export function IssueCard({
   const interpretation = getInterpretation(issue, mode);
   const action = getAction(issue, mode);
   const summary = getSummary(issue, mode);
+  const summaryLanguage = getLanguageLabel(getSummaryLanguage(mode));
+  const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
+  const actionLanguage = getLanguageLabel(getActionLanguage(mode));
 
   return (
     <Pressable style={[styles.card, state.isRead && styles.readCard]} onPress={onPress}>
@@ -39,17 +52,17 @@ export function IssueCard({
       <Text style={styles.originalLabel}>Original</Text>
       <Text style={styles.originalTitle}>{issue.originalTitle}</Text>
 
-      <Text style={styles.sectionLabel}>Summary</Text>
+      <Text style={styles.sectionLabel}>Summary · {summaryLanguage}</Text>
       <Text style={styles.summary}>{summary}</Text>
 
-      <Text style={styles.sectionLabel}>Interpretation</Text>
+      <Text style={styles.sectionLabel}>Interpretation · {interpretationLanguage}</Text>
       {interpretation.slice(0, 2).map((line) => (
         <Text key={line} style={styles.body}>
           • {line}
         </Text>
       ))}
 
-      <Text style={styles.sectionLabel}>Action</Text>
+      <Text style={styles.sectionLabel}>Action · {actionLanguage}</Text>
       <Text style={styles.action}>{action[0]}</Text>
 
       <View style={styles.footer}>

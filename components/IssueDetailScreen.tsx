@@ -1,6 +1,18 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, spacing } from "../constants/theme";
-import { getAction, getImpactReason, getInterpretation, getSeverityColors, getSeverityLabel, getSummary } from "../lib/format";
+import {
+  getAction,
+  getActionLanguage,
+  getImpactReason,
+  getInterpretation,
+  getInterpretationLanguage,
+  getLanguageLabel,
+  getLanguageModePreview,
+  getSeverityColors,
+  getSeverityLabel,
+  getSummary,
+  getSummaryLanguage,
+} from "../lib/format";
 import { Issue, IssueState, LanguageMode } from "../types/app";
 import { Badge } from "./Badge";
 
@@ -24,6 +36,9 @@ export function IssueDetailScreen({
   const actions = getAction(issue, mode);
   const summary = getSummary(issue, mode);
   const impactReason = getImpactReason(issue, mode);
+  const summaryLanguage = getLanguageLabel(getSummaryLanguage(mode));
+  const interpretationLanguage = getLanguageLabel(getInterpretationLanguage(mode));
+  const actionLanguage = getLanguageLabel(getActionLanguage(mode));
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -39,15 +54,16 @@ export function IssueDetailScreen({
         />
         <Text style={styles.tags}>{issue.tags.join(" • ")}</Text>
       </View>
+      <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
 
       <Text style={styles.originalLabel}>Original</Text>
       <Text style={styles.originalTitle}>{issue.originalTitle}</Text>
 
-      <Section title="Summary">
+      <Section title={`Summary · ${summaryLanguage}`}>
         <Text style={styles.body}>{summary}</Text>
       </Section>
 
-      <Section title="Interpretation">
+      <Section title={`Interpretation · ${interpretationLanguage}`}>
         {interpretation.map((line) => (
           <Text key={line} style={styles.body}>
             • {line}
@@ -61,7 +77,7 @@ export function IssueDetailScreen({
         <Text style={styles.body}>{impactReason}</Text>
       </Section>
 
-      <Section title="Action">
+      <Section title={`Action · ${actionLanguage}`}>
         {actions.map((line) => (
           <Text key={line} style={styles.action}>
             • {line}
@@ -129,6 +145,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginTop: spacing.lg,
     textTransform: "uppercase",
+  },
+  languagePreview: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: spacing.sm,
   },
   originalTitle: {
     color: colors.text,

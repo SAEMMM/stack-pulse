@@ -3,6 +3,8 @@ export type LanguageMode =
   | "en_source_ko_all"
   | "en_summary_ko_interpretation";
 
+export type ContentLanguage = "en" | "ko";
+
 export type UserRole = "frontend" | "fullstack" | "tech_lead";
 
 export type Severity = "security" | "breaking" | "major";

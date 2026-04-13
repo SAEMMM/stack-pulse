@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, spacing } from "../constants/theme";
+import { getLanguageModePreview } from "../lib/format";
 import { Issue, IssueState, LanguageMode } from "../types/app";
 import { IssueCard } from "./IssueCard";
 
@@ -26,6 +27,7 @@ export function FeedScreen({
         선택된 스택: {stacks.join(", ")}. 요약보다 해석을 앞세워서 지금 판단이 필요한 이슈부터
         정렬합니다.
       </Text>
+      <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
 
       <View style={styles.heroCard}>
         <Text style={styles.heroLabel}>How to read</Text>
@@ -73,6 +75,12 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     fontSize: 16,
     lineHeight: 23,
+    marginTop: spacing.sm,
+  },
+  languagePreview: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "700",
     marginTop: spacing.sm,
   },
   heroCard: {
