@@ -65,12 +65,12 @@ Next.js 16.2가 출시되었습니다
 - 온보딩
   - 역할 선택
   - 관심 기술 스택 선택
-  - 언어 모드 선택
+  - 앱 언어 선택
   - 푸시 강도 선택
 - 홈 피드
   - 이슈 카드 기반 피드
   - 중요도 배지
-  - 원문 / 요약 / 해석 / 액션 미리보기
+  - 제목 + 핵심 한 줄 중심의 브리핑 카드
 - 이슈 상세
   - Interpretation 중심 상세 구조
   - 영향도 / 액션 / 소스 확인
@@ -154,7 +154,8 @@ npm run content:fetch
 npm run content:build
 ```
 
-`content:fetch`는 현재 fixture 기반 수집 스냅샷을 `content/fetched-sources.json`으로 정리하고,  
+`content:fetch`는 공식 소스 fetcher를 우선 시도하고, 실패 시 fixture 스냅샷으로 fallback해  
+`content/fetched-sources.json`을 생성합니다.  
 `content:build`는 이를 바탕으로 해석/액션 데이터를 결합해 앱이 사용하는 `data/generatedIssues.ts`를 생성합니다.
 
 한 번에 순차 실행하려면 아래 명령을 사용할 수 있습니다.
@@ -181,12 +182,11 @@ App.tsx       앱 엔트리
 
 다음 구현 우선순위는 아래와 같습니다.
 
-1. fixture 기반 수집기를 실제 공식 소스 fetcher로 전환
-2. 공식 블로그 / 릴리즈 노트 / GitHub Releases 기반 정규화 수집 확장
-3. AI 기반 Summary / Interpretation / Action 생성 연결
-4. 이슈 클러스터링 고도화
-5. 푸시 알림 실제 연동
-6. 웹 확장을 고려한 API/데이터 구조 정리
+1. 공식 블로그 / 릴리즈 노트 / GitHub Releases 기반 정규화 수집 확장
+2. AI 기반 Summary / Interpretation / Action 생성 연결
+3. 이슈 클러스터링 고도화
+4. 푸시 알림 실제 연동
+5. 웹 확장을 고려한 API/데이터 구조 정리
 
 ## 제품 원칙
 
