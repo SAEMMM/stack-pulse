@@ -2,10 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 const projectRoot = process.cwd();
-const rawSourcesPath = path.join(projectRoot, "content", "raw-sources.json");
+const fetchedSourcesPath = path.join(projectRoot, "content", "fetched-sources.json");
+const enrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
 const outputPath = path.join(projectRoot, "data", "generatedIssues.ts");
 
-const rawSources = JSON.parse(fs.readFileSync(rawSourcesPath, "utf8"));
+const fetchedSources = JSON.parse(fs.readFileSync(fetchedSourcesPath, "utf8"));
+const enrichments = JSON.parse(fs.readFileSync(enrichmentsPath, "utf8"));
 
 function unique(items) {
   return [...new Set(items)];
@@ -17,26 +19,24 @@ function sortByDateDesc(a, b) {
 
 function mergeIssue(group) {
   const latest = [...group].sort(sortByDateDesc)[0];
+  const enrichment = enrichments[latest.issueKey];
 
-  const interpretation = {
-    en: unique(group.flatMap((item) => item.interpretation.en)),
-    ko: unique(group.flatMap((item) => item.interpretation.ko)),
-  };
+  if (!enrichment) {
+    throw new Error(`Missing enrichment data for issueKey: ${latest.issueKey}`);
+  }
 
-  const action = {
-    en: unique(group.flatMap((item) => item.action.en)),
-    ko: unique(group.flatMap((item) => item.action.ko)),
-  };
+  const interpretation = enrichment.interpretation;
+  const action = enrichment.action;
 
   return {
     id: latest.issueKey,
     severity: latest.severity,
     tags: unique(group.flatMap((item) => item.tags)),
     originalTitle: latest.originalTitle,
-    summary: latest.summary,
+    summary: enrichment.summary,
     interpretation,
     action,
-    impact: latest.impact,
+    impact: enrichment.impact,
     sourceCount: group.length,
     sources: group
       .sort(sortByDateDesc)
@@ -49,7 +49,7 @@ function mergeIssue(group) {
   };
 }
 
-const grouped = rawSources.reduce((acc, item) => {
+const grouped = fetchedSources.reduce((acc, item) => {
   const list = acc.get(item.issueKey) ?? [];
   list.push(item);
   acc.set(item.issueKey, list);

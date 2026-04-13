@@ -1,33 +1,28 @@
-[
-  {
-    "issueKey": "next-16-2",
-    "sourceId": "nextjs-release-note",
-    "sourceType": "release_note",
-    "sourceName": "Next.js Release Notes",
-    "url": "https://nextjs.org",
-    "publishedAt": "2026-04-12T08:00:00Z",
-    "severity": "major",
-    "tags": ["Next.js", "React"],
-    "originalTitle": "Next.js 16.2 released",
+{
+  "next-16-2": {
     "summary": {
-      "en": "Next.js 16.2 is now available.",
-      "ko": "Next.js 16.2가 출시되었습니다."
+      "en": "Next.js 16.2 adds practical performance wins for App Router teams.",
+      "ko": "Next.js 16.2는 App Router 팀에 실질적인 성능 개선을 제공합니다."
     },
     "interpretation": {
       "en": [
+        "Most existing teams can treat this as a planned review item rather than an urgent task.",
         "App Router performance got practical improvements for production workloads.",
         "Turbopack stability is improving, but this is not a forced migration moment."
       ],
       "ko": [
+        "대부분의 팀은 긴급 대응보다 정기 업그레이드 검토 항목으로 보면 됩니다.",
         "App Router 기준으로 실무 체감이 가능한 성능 개선이 포함됐습니다.",
         "Turbopack 안정성이 높아졌지만, 지금 당장 마이그레이션을 강제하는 수준은 아닙니다."
       ]
     },
     "action": {
       "en": [
+        "Evaluate for new projects first.",
         "Review the changelog before the next sprint."
       ],
       "ko": [
+        "신규 프로젝트에서 우선 검토하는 접근이 적절합니다.",
         "다음 스프린트 전에 changelog를 확인하세요."
       ]
     },
@@ -40,55 +35,7 @@
       }
     }
   },
-  {
-    "issueKey": "next-16-2",
-    "sourceId": "vercel-blog-post",
-    "sourceType": "blog",
-    "sourceName": "Vercel Blog",
-    "url": "https://vercel.com/blog",
-    "publishedAt": "2026-04-12T10:00:00Z",
-    "severity": "major",
-    "tags": ["Next.js", "React", "Vercel"],
-    "originalTitle": "Next.js 16.2 released",
-    "summary": {
-      "en": "Next.js 16.2 adds practical performance wins for App Router teams.",
-      "ko": "Next.js 16.2는 App Router 팀에 실질적인 성능 개선을 제공합니다."
-    },
-    "interpretation": {
-      "en": [
-        "Most existing teams can treat this as a planned review item rather than an urgent task."
-      ],
-      "ko": [
-        "대부분의 팀은 긴급 대응보다 정기 업그레이드 검토 항목으로 보면 됩니다."
-      ]
-    },
-    "action": {
-      "en": [
-        "Evaluate for new projects first."
-      ],
-      "ko": [
-        "신규 프로젝트에서 우선 검토하는 접근이 적절합니다."
-      ]
-    },
-    "impact": {
-      "level": "medium",
-      "audience": ["Next.js users", "App Router teams"],
-      "reason": {
-        "en": "Relevant for teams already using Next.js, but not a same-day action item.",
-        "ko": "Next.js 운영 팀에는 관련성이 높지만, 당일 대응이 필요한 수준은 아닙니다."
-      }
-    }
-  },
-  {
-    "issueKey": "typescript-vuln",
-    "sourceId": "security-advisory",
-    "sourceType": "security",
-    "sourceName": "GitHub Advisory",
-    "url": "https://github.com/advisories",
-    "publishedAt": "2026-04-13T02:30:00Z",
-    "severity": "security",
-    "tags": ["TypeScript", "Node.js"],
-    "originalTitle": "TypeScript ecosystem package disclosed a supply-chain vulnerability",
+  "typescript-vuln": {
     "summary": {
       "en": "A supply-chain vulnerability affecting a TypeScript-adjacent package has been disclosed.",
       "ko": "TypeScript 생태계 인접 패키지에서 공급망 취약점이 공개되었습니다."
@@ -122,16 +69,7 @@
       }
     }
   },
-  {
-    "issueKey": "react-compiler-rfc",
-    "sourceId": "react-rfc",
-    "sourceType": "rfc",
-    "sourceName": "React RFC",
-    "url": "https://github.com/reactjs",
-    "publishedAt": "2026-04-11T11:15:00Z",
-    "severity": "breaking",
-    "tags": ["React"],
-    "originalTitle": "React Compiler RFC updated with stricter escape hatches",
+  "react-compiler-rfc": {
     "summary": {
       "en": "The React Compiler RFC was updated with stricter patterns around escape hatches.",
       "ko": "React Compiler RFC가 escape hatch 사용 조건을 더 엄격하게 조정했습니다."
@@ -165,4 +103,4 @@
       }
     }
   }
-]
+}

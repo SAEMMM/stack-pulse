@@ -70,24 +70,24 @@ export const generatedIssues: Issue[] = [
     },
     "interpretation": {
       "en": [
+        "Most existing teams can treat this as a planned review item rather than an urgent task.",
         "App Router performance got practical improvements for production workloads.",
-        "Turbopack stability is improving, but this is not a forced migration moment.",
-        "Most existing teams can treat this as a planned review item rather than an urgent task."
+        "Turbopack stability is improving, but this is not a forced migration moment."
       ],
       "ko": [
+        "대부분의 팀은 긴급 대응보다 정기 업그레이드 검토 항목으로 보면 됩니다.",
         "App Router 기준으로 실무 체감이 가능한 성능 개선이 포함됐습니다.",
-        "Turbopack 안정성이 높아졌지만, 지금 당장 마이그레이션을 강제하는 수준은 아닙니다.",
-        "대부분의 팀은 긴급 대응보다 정기 업그레이드 검토 항목으로 보면 됩니다."
+        "Turbopack 안정성이 높아졌지만, 지금 당장 마이그레이션을 강제하는 수준은 아닙니다."
       ]
     },
     "action": {
       "en": [
-        "Review the changelog before the next sprint.",
-        "Evaluate for new projects first."
+        "Evaluate for new projects first.",
+        "Review the changelog before the next sprint."
       ],
       "ko": [
-        "다음 스프린트 전에 changelog를 확인하세요.",
-        "신규 프로젝트에서 우선 검토하는 접근이 적절합니다."
+        "신규 프로젝트에서 우선 검토하는 접근이 적절합니다.",
+        "다음 스프린트 전에 changelog를 확인하세요."
       ]
     },
     "impact": {

@@ -78,7 +78,7 @@ Next.js 16.2가 출시되었습니다
 - 알림 화면
 - 설정 화면
 
-현재는 더미 데이터를 기반으로 MVP 핵심 UX를 검증할 수 있는 상태입니다.
+현재는 `원문 수집 데이터`와 `해석 데이터`를 분리한 MVP 콘텐츠 파이프라인 기반으로 핵심 UX를 검증할 수 있는 상태입니다.
 
 ## 타겟 사용자
 
@@ -147,14 +147,32 @@ npm run android
 npm run typecheck
 ```
 
+### 4. 콘텐츠 파이프라인 실행
+
+```bash
+npm run content:fetch
+npm run content:build
+```
+
+`content:fetch`는 현재 fixture 기반 수집 스냅샷을 `content/fetched-sources.json`으로 정리하고,  
+`content:build`는 이를 바탕으로 해석/액션 데이터를 결합해 앱이 사용하는 `data/generatedIssues.ts`를 생성합니다.
+
+한 번에 순차 실행하려면 아래 명령을 사용할 수 있습니다.
+
+```bash
+npm run content:refresh
+```
+
 ## 프로젝트 구조
 
 ```text
 components/   화면 및 UI 컴포넌트
 constants/    테마 상수
-data/         MVP 더미 데이터
+content/      원문 수집 데이터, fixture, 해석 템플릿
+data/         앱 소비용 생성 데이터
 hooks/        앱 상태 훅
 lib/          포맷팅 및 공통 로직
+scripts/      콘텐츠 수집 및 생성 스크립트
 types/        타입 정의
 App.tsx       앱 엔트리
 ```
@@ -163,10 +181,10 @@ App.tsx       앱 엔트리
 
 다음 구현 우선순위는 아래와 같습니다.
 
-1. 더미 데이터에서 실제 수집 파이프라인으로 전환
-2. 공식 블로그 / 릴리즈 노트 / GitHub Releases 기반 이슈 수집
-3. 이슈 클러스터링 로직 추가
-4. AI 기반 Summary / Interpretation / Action 생성 연결
+1. fixture 기반 수집기를 실제 공식 소스 fetcher로 전환
+2. 공식 블로그 / 릴리즈 노트 / GitHub Releases 기반 정규화 수집 확장
+3. AI 기반 Summary / Interpretation / Action 생성 연결
+4. 이슈 클러스터링 고도화
 5. 푸시 알림 실제 연동
 6. 웹 확장을 고려한 API/데이터 구조 정리
 

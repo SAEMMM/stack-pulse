@@ -1,0 +1,62 @@
+[
+  {
+    "sourceId": "nextjs-release-note",
+    "issueKey": "next-16-2",
+    "sourceType": "release_note",
+    "sourceName": "Next.js Release Notes",
+    "url": "https://nextjs.org",
+    "publishedAt": "2026-04-12T08:00:00Z",
+    "severity": "major",
+    "tags": [
+      "Next.js",
+      "React"
+    ],
+    "originalTitle": "Next.js 16.2 released",
+    "originalExcerpt": "Next.js 16.2 is available with performance and stability improvements for modern React apps."
+  },
+  {
+    "sourceId": "vercel-blog-post",
+    "issueKey": "next-16-2",
+    "sourceType": "blog",
+    "sourceName": "Vercel Blog",
+    "url": "https://vercel.com/blog",
+    "publishedAt": "2026-04-12T10:00:00Z",
+    "severity": "major",
+    "tags": [
+      "Next.js",
+      "React",
+      "Vercel"
+    ],
+    "originalTitle": "Next.js 16.2 released",
+    "originalExcerpt": "Vercel highlights App Router performance wins and improved Turbopack stability in the latest release."
+  },
+  {
+    "sourceId": "security-advisory",
+    "issueKey": "typescript-vuln",
+    "sourceType": "security",
+    "sourceName": "GitHub Advisory",
+    "url": "https://github.com/advisories",
+    "publishedAt": "2026-04-13T02:30:00Z",
+    "severity": "security",
+    "tags": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "originalTitle": "TypeScript ecosystem package disclosed a supply-chain vulnerability",
+    "originalExcerpt": "A newly disclosed advisory points to potential supply-chain risk in a package commonly used near TypeScript build workflows."
+  },
+  {
+    "sourceId": "react-rfc",
+    "issueKey": "react-compiler-rfc",
+    "sourceType": "rfc",
+    "sourceName": "React RFC",
+    "url": "https://github.com/reactjs",
+    "publishedAt": "2026-04-11T11:15:00Z",
+    "severity": "breaking",
+    "tags": [
+      "React"
+    ],
+    "originalTitle": "React Compiler RFC updated with stricter escape hatches",
+    "originalExcerpt": "The updated RFC clarifies stricter expectations around compiler escape hatches and coding patterns."
+  }
+]
