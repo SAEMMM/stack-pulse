@@ -1,5 +1,75 @@
-node_modules/
-dist/
-.expo/
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage
+*.lcov
+.nyc_output
+
+# Build and cache
+build/Release
+dist
+.expo/
+.cache
+.parcel-cache
+.next
+out
+.nuxt
+.temp
+.svelte-kit/
+**/.vitepress/dist
+**/.vitepress/cache
+.docusaurus
+
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+bower_components
+
+# Tooling caches
+*.tsbuildinfo
+.npm
+.eslintcache
+.stylelintcache
+.yarn-integrity
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Misc
 .DS_Store
+.node_repl_history
+.lock-wscript
+*.tgz
+.serverless/
+.fusebox/
+.dynamodb/
+.firebase/
+.tern-port
+.vscode-test
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
