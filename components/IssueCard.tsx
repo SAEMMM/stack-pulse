@@ -2,7 +2,6 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import {
-  getImpactAudiencePreview,
   getImpactColors,
   getImpactLabel,
   getDisplayTitle,
@@ -32,8 +31,7 @@ export function IssueCard({
   onPress: () => void;
   onToggleSaved: () => void;
 }) {
-  const { t, i18n } = useTranslation();
-  const english = i18n.language === "en";
+  const { t } = useTranslation();
   const severityColors = getSeverityColors(issue);
   const impactColors = getImpactColors(issue);
   const keyLine = getPrimaryKeyLine(issue, mode);
@@ -53,28 +51,35 @@ export function IssueCard({
           backgroundColor={severityColors.bg}
           color={severityColors.text}
         />
-        <Text style={styles.meta}>{issue.tags.join(" • ")}</Text>
+        {!state.isRead && <Text style={styles.unreadDotInline}>{newLabel}</Text>}
+        <View style={styles.rowSpacer} />
         <Pressable onPress={onToggleSaved} hitSlop={10}>
           <Text style={styles.save}>{saveLabel}</Text>
         </Pressable>
       </View>
 
-      <View style={styles.impactRow}>
-        <View style={[styles.impactPill, { backgroundColor: impactColors.bg }]}>
-          <Text style={[styles.impactPillText, { color: impactColors.text }]}>
-            {getImpactLabel(issue)}
-          </Text>
+      {variant === "compact" ? null : (
+        <View style={styles.impactRow}>
+          <View style={[styles.impactPill, { backgroundColor: impactColors.bg }]}>
+            <Text style={[styles.impactPillText, { color: impactColors.text }]}>
+              {getImpactLabel(issue)}
+            </Text>
+          </View>
         </View>
-        <Text style={styles.impactAudience}>{getImpactAudiencePreview(issue)}</Text>
-      </View>
+      )}
 
-      <Text style={styles.originalLabel}>{originalLabel}</Text>
+      {variant === "compact" ? null : <Text style={styles.originalLabel}>{originalLabel}</Text>}
       <Text style={styles.originalTitle}>{displayTitle}</Text>
 
       {variant === "compact" ? (
-        <Text numberOfLines={1} style={styles.keyLine}>
-          {keyLine}
-        </Text>
+        <>
+          <Text numberOfLines={1} style={styles.keyLine}>
+            {keyLine}
+          </Text>
+          <Text numberOfLines={1} style={styles.compactMeta}>
+            {issue.tags.slice(0, 2).join(" • ")}
+          </Text>
+        </>
       ) : (
         <>
           <Text style={styles.keyLineLabel}>{keyPointLabel}</Text>
@@ -114,11 +119,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.sm,
   },
-  meta: {
-    color: colors.subtext,
+  rowSpacer: {
     flex: 1,
-    fontSize: 12,
-    fontWeight: "600",
   },
   save: {
     color: colors.accentStrong,
@@ -138,12 +140,6 @@ const styles = StyleSheet.create({
   impactPillText: {
     fontSize: 12,
     fontWeight: "800",
-  },
-  impactAudience: {
-    color: colors.subtext,
-    flex: 1,
-    fontSize: 12,
-    fontWeight: "600",
   },
   originalLabel: {
     color: colors.subtext,
@@ -169,6 +165,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     lineHeight: 22,
+    marginTop: spacing.xs,
+  },
+  compactMeta: {
+    color: colors.subtext,
+    fontSize: 12,
+    fontWeight: "600",
     marginTop: spacing.xs,
   },
   keyLineLabel: {
@@ -199,5 +201,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     marginLeft: "auto",
+  },
+  unreadDotInline: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "800",
   },
 });

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { getLanguageModePreview, getRoleLabel } from "../lib/format";
 import { Issue, IssueState, LanguageMode, UiLanguage, UserRole } from "../types/app";
 import { IssueCard } from "./IssueCard";
 
@@ -15,10 +14,8 @@ export function FeedScreen({
   uiLanguage,
   stacks,
   role,
-  pushLevel,
   onPressIssue,
   onToggleSaved,
-  hideReadIssues,
   onChangeUiLanguage,
 }: {
   issues: Issue[];
@@ -27,16 +24,12 @@ export function FeedScreen({
   uiLanguage: UiLanguage;
   stacks: string[];
   role: UserRole;
-  pushLevel: "important_only" | "important_and_major";
   onPressIssue: (issue: Issue) => void;
   onToggleSaved: (issueId: string) => void;
-  hideReadIssues: boolean;
   onChangeUiLanguage: (language: UiLanguage) => void;
 }) {
   const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
-  const english = uiLanguage === "en";
-
   const filterOptions = useMemo(
     () => [
       { key: "all" as const, label: t("feed.filters.all"), count: issues.length },
@@ -102,32 +95,6 @@ export function FeedScreen({
         </Pressable>
       </View>
       <Text style={styles.title}>{t("feed.title")}</Text>
-      <Text style={styles.subtext}>
-        {t("feed.subtitle", {
-          role: getRoleLabel(role, uiLanguage),
-          stacks: stacks.join(", "),
-        })}
-      </Text>
-      <Text style={styles.languagePreview}>{getLanguageModePreview(mode)}</Text>
-      <Text style={styles.preferenceState}>
-        {hideReadIssues ? t("feed.hideReadOn") : t("feed.hideReadOff")}
-      </Text>
-
-      {filteredIssues.length > 0 && activeFilter === "all" && (
-        <View style={styles.briefingCard}>
-          <Text style={styles.briefingLabel}>{t("feed.priorityBriefing")}</Text>
-          <Text style={styles.briefingTitle}>{english ? filteredIssues[0].title.en : filteredIssues[0].title.ko}</Text>
-          <Text style={styles.briefingBody}>
-            {english ? filteredIssues[0].impact.reason.en : filteredIssues[0].impact.reason.ko}
-          </Text>
-          <View style={styles.briefingMetaRow}>
-            <Text style={styles.briefingMeta}>
-              {filteredIssues[0].severity.toUpperCase()} · {filteredIssues[0].impact.level.toUpperCase()} IMPACT
-            </Text>
-            <Text style={styles.briefingMeta}>{filteredIssues[0].tags.slice(0, 2).join(" • ")}</Text>
-          </View>
-        </View>
-      )}
 
       <View style={styles.filterRow}>
         {filterOptions.map((filter) => {
@@ -149,17 +116,6 @@ export function FeedScreen({
             </Pressable>
           );
         })}
-      </View>
-
-      <View style={styles.filterSummaryRow}>
-        <Text style={styles.filterSummary}>
-          {activeFilter === "all" && t("feed.allSummary")}
-          {activeFilter === "my_stack" && t("feed.myStackSummary")}
-          {activeFilter === "security" && t("feed.securitySummary")}
-          {activeFilter === "breaking" && t("feed.breakingSummary")}
-          {activeFilter === "unread" && t("feed.unreadSummary")}
-        </Text>
-        <Text style={styles.filterMeta}>{t("feed.issuesCount", { count: filteredIssues.length })}</Text>
       </View>
 
       {filteredIssues.length === 0 ? (
@@ -202,21 +158,9 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 31,
+    fontSize: 28,
     fontWeight: "800",
-    lineHeight: 38,
-    marginTop: spacing.sm,
-  },
-  subtext: {
-    color: colors.subtext,
-    fontSize: 16,
-    lineHeight: 23,
-    marginTop: spacing.sm,
-  },
-  languagePreview: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "700",
+    lineHeight: 34,
     marginTop: spacing.sm,
   },
   languageSwitch: {
@@ -245,61 +189,6 @@ const styles = StyleSheet.create({
   },
   languageChipTextActive: {
     color: colors.accentStrong,
-  },
-  preferenceState: {
-    color: colors.subtext,
-    fontSize: 12,
-    lineHeight: 18,
-    marginTop: spacing.xs,
-  },
-  briefingCard: {
-    backgroundColor: colors.panelElevated,
-    borderColor: colors.accentSoft,
-    borderRadius: 24,
-    borderWidth: 1,
-    marginBottom: spacing.lg,
-    padding: spacing.md,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.24,
-    shadowRadius: 18,
-    elevation: 5,
-  },
-  briefingLabel: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  briefingTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: "800",
-    lineHeight: 28,
-    marginTop: spacing.sm,
-  },
-  briefingBody: {
-    color: colors.subtext,
-    fontSize: 14,
-    lineHeight: 21,
-    marginTop: spacing.sm,
-  },
-  briefingWhy: {
-    color: colors.text,
-    fontSize: 13,
-    lineHeight: 19,
-    marginTop: spacing.sm,
-  },
-  briefingMetaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  briefingMeta: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "700",
   },
   filterRow: {
     flexDirection: "row",
@@ -348,23 +237,6 @@ const styles = StyleSheet.create({
   },
   filterCountTextSelected: {
     color: colors.bg,
-  },
-  filterSummaryRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  filterSummary: {
-    color: colors.subtext,
-    flex: 1,
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  filterMeta: {
-    color: colors.accentStrong,
-    fontSize: 12,
-    fontWeight: "800",
   },
   emptyState: {
     backgroundColor: colors.panelElevated,

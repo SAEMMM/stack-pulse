@@ -78,10 +78,8 @@ export default function App() {
             uiLanguage={app.preferences.uiLanguage}
             stacks={app.preferences.stacks}
             role={app.preferences.role}
-            pushLevel={app.preferences.pushLevel}
             onPressIssue={app.openIssue}
             onToggleSaved={app.toggleSaved}
-            hideReadIssues={app.preferences.hideReadIssues}
             onChangeUiLanguage={changeUiLanguage}
           />
         )}
