@@ -52,7 +52,6 @@ const resources = {
         refreshFailed: "Could not reach the latest content. Showing the last available set.",
         source: {
           empty: "no content",
-          cached: "cached",
           remote: "live",
         },
         emptyTitle: "No issues match this filter right now.",
@@ -108,7 +107,6 @@ const resources = {
         contentLive: "Fetch {{mode}} · Enrichment {{enrichment}}",
         contentSource: {
           empty: "No synced content is available yet.",
-          cached: "Using last synced cached content.",
           remote: "Using the latest remote content.",
         },
         refreshContent: "Refresh content now",
@@ -187,7 +185,6 @@ const resources = {
         refreshFailed: "최신 콘텐츠에 연결하지 못해 마지막으로 사용 가능한 데이터를 보여주고 있습니다.",
         source: {
           empty: "데이터 없음",
-          cached: "캐시 데이터",
           remote: "실시간 연결",
         },
         emptyTitle: "현재 조건에 맞는 이슈가 없습니다.",
@@ -242,7 +239,6 @@ const resources = {
         contentLive: "수집 {{mode}} · 생성 {{enrichment}}",
         contentSource: {
           empty: "아직 동기화된 콘텐츠가 없습니다.",
-          cached: "마지막으로 동기화된 캐시 콘텐츠를 사용 중입니다.",
           remote: "최신 원격 콘텐츠를 사용 중입니다.",
         },
         refreshContent: "콘텐츠 지금 갱신",

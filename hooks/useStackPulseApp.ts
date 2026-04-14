@@ -5,7 +5,6 @@ import { sortIssues } from "../lib/format";
 import { getNotificationPermissionState, scheduleIssueNotification } from "../lib/notifications";
 import {
   loadPersistedAppState,
-  persistContentBundle,
   persistIsOnboarded,
   persistIssueStates,
   persistPreferences,
@@ -73,13 +72,6 @@ export function useStackPulseApp() {
 
         if (!isMounted) return;
 
-        const initialBundle = persisted.contentBundle ?? emptyContentBundle;
-
-        if (persisted.contentBundle) {
-          setContentBundle(persisted.contentBundle);
-          setContentSource("cached");
-        }
-
         if (persisted.preferences) {
           setPreferences({
             ...persisted.preferences,
@@ -92,7 +84,7 @@ export function useStackPulseApp() {
           }));
         }
 
-        setStates(reconcileIssueStates(initialBundle.issues, persisted.issueStates));
+        setStates((prev) => ({ ...prev, ...(persisted.issueStates ?? {}) }));
 
         if (persisted.isOnboarded) {
           setIsOnboarded(true);
@@ -120,10 +112,12 @@ export function useStackPulseApp() {
       setIsRefreshingContent(true);
 
       try {
-        const remoteBundle = await fetchRemoteContentBundle();
+        const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
 
         if (!remoteBundle || !isMounted) {
           if (isMounted) {
+            setContentBundle(emptyContentBundle);
+            setContentSource("empty");
             setLastRefreshSucceeded(false);
           }
           return;
@@ -132,7 +126,6 @@ export function useStackPulseApp() {
         setContentBundle(remoteBundle);
         setContentSource("remote");
         setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-        await persistContentBundle(remoteBundle);
         setLastRefreshSucceeded(true);
 
         setSelectedIssue((prev) => {
@@ -151,7 +144,7 @@ export function useStackPulseApp() {
     return () => {
       isMounted = false;
     };
-  }, [isReady]);
+  }, [isReady, preferences.stacks]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -274,13 +267,12 @@ export function useStackPulseApp() {
     setIsRefreshingContent(true);
 
     try {
-      const remoteBundle = await fetchRemoteContentBundle();
+      const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
 
       if (remoteBundle) {
         setContentBundle(remoteBundle);
         setContentSource("remote");
         setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-        await persistContentBundle(remoteBundle);
         setLastRefreshSucceeded(true);
 
         setSelectedIssue((prev) => {
@@ -288,6 +280,9 @@ export function useStackPulseApp() {
           return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
         });
       } else {
+        setContentBundle(emptyContentBundle);
+        setContentSource("empty");
+        setSelectedIssue(null);
         setLastRefreshSucceeded(false);
       }
 

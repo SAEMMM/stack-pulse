@@ -1,7 +1,6 @@
 import { ContentBundle } from "../types/app";
 
-const REMOTE_CONTENT_URL =
-  "https://raw.githubusercontent.com/SAEMMM/stack-pulse/main/content/app-content.json";
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:4318";
 const REMOTE_FETCH_TIMEOUT_MS = 5000;
 
 export const DEFAULT_STACK_OPTIONS = [
@@ -47,12 +46,23 @@ function isValidBundle(value: unknown): value is ContentBundle {
   );
 }
 
-export async function fetchRemoteContentBundle() {
+function getApiBaseUrl() {
+  const extra =
+    typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
+  return extra || DEFAULT_API_BASE_URL;
+}
+
+export async function fetchRemoteContentBundle(stacks: string[]) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REMOTE_FETCH_TIMEOUT_MS);
+  const url = new URL("/api/feed", getApiBaseUrl());
+
+  if (stacks.length > 0) {
+    url.searchParams.set("stacks", stacks.join(","));
+  }
 
   try {
-    const response = await fetch(REMOTE_CONTENT_URL, {
+    const response = await fetch(url.toString(), {
       headers: {
         Accept: "application/json",
       },
@@ -77,4 +87,4 @@ export async function fetchRemoteContentBundle() {
   }
 }
 
-export { REMOTE_CONTENT_URL };
+export { DEFAULT_API_BASE_URL };

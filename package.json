@@ -8,6 +8,7 @@
     "ios": "expo start --ios",
     "android": "expo start --android",
     "web": "expo start --web",
+    "server:start": "node server/index.mjs",
     "content:fetch": "node scripts/fetch-sources.mjs",
     "content:enrich": "node scripts/generate-enrichments.mjs",
     "typecheck": "tsc --noEmit",

@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
+import { formatShortDate } from "../lib/format";
 import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
 import { ContentMeta, ContentSource, UserPreferences } from "../types/app";
 
@@ -57,7 +58,7 @@ export function SettingsScreen({
         <Text style={styles.sectionTitle}>{t("settings.content")}</Text>
         <Text style={styles.optionBody}>
           {t("settings.contentUpdated", {
-            date: new Date(contentMeta.lastUpdatedAt).toLocaleDateString(),
+            date: formatShortDate(contentMeta.lastUpdatedAt, preferences.uiLanguage),
           })}
         </Text>
         <Text style={styles.optionBody}>{t("settings.contentIssues", { count: contentMeta.issueCount })}</Text>
