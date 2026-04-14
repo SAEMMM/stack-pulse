@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchRemoteContentBundle, getLocalContentBundle } from "../lib/content";
+import { createEmptyContentBundle, DEFAULT_STACK_OPTIONS, fetchRemoteContentBundle } from "../lib/content";
 import { AppTab, ContentBundle, ContentSource, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
 import { getNotificationPermissionState, scheduleIssueNotification } from "../lib/notifications";
@@ -20,7 +20,7 @@ const defaultPreferences: UserPreferences = {
   hideReadIssues: false,
 };
 
-const localContentBundle = getLocalContentBundle();
+const emptyContentBundle = createEmptyContentBundle();
 
 function createStateForIssue(issue: Issue): IssueState {
   return {
@@ -53,11 +53,12 @@ export function useStackPulseApp() {
   const [isReady, setIsReady] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
-  const [contentBundle, setContentBundle] = useState<ContentBundle>(localContentBundle);
-  const [contentSource, setContentSource] = useState<ContentSource>("bundled");
+  const [contentBundle, setContentBundle] = useState<ContentBundle>(emptyContentBundle);
+  const [contentSource, setContentSource] = useState<ContentSource>("empty");
   const [isRefreshingContent, setIsRefreshingContent] = useState(false);
+  const [lastRefreshSucceeded, setLastRefreshSucceeded] = useState<boolean | null>(null);
   const [states, setStates] = useState<Record<string, IssueState>>(() =>
-    createInitialState(localContentBundle.issues),
+    createInitialState(emptyContentBundle.issues),
   );
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
@@ -72,7 +73,7 @@ export function useStackPulseApp() {
 
         if (!isMounted) return;
 
-        const initialBundle = persisted.contentBundle ?? localContentBundle;
+        const initialBundle = persisted.contentBundle ?? emptyContentBundle;
 
         if (persisted.contentBundle) {
           setContentBundle(persisted.contentBundle);
@@ -117,25 +118,31 @@ export function useStackPulseApp() {
 
     async function refreshInitialContent() {
       setIsRefreshingContent(true);
-      const remoteBundle = await fetchRemoteContentBundle();
 
-      if (!remoteBundle || !isMounted) {
-        setIsRefreshingContent(false);
-        return;
-      }
+      try {
+        const remoteBundle = await fetchRemoteContentBundle();
 
-      setContentBundle(remoteBundle);
-      setContentSource("remote");
-      setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-      await persistContentBundle(remoteBundle);
+        if (!remoteBundle || !isMounted) {
+          if (isMounted) {
+            setLastRefreshSucceeded(false);
+          }
+          return;
+        }
 
-      setSelectedIssue((prev) => {
-        if (!prev) return null;
-        return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
-      });
+        setContentBundle(remoteBundle);
+        setContentSource("remote");
+        setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
+        await persistContentBundle(remoteBundle);
+        setLastRefreshSucceeded(true);
 
-      if (isMounted) {
-        setIsRefreshingContent(false);
+        setSelectedIssue((prev) => {
+          if (!prev) return null;
+          return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
+        });
+      } finally {
+        if (isMounted) {
+          setIsRefreshingContent(false);
+        }
       }
     }
 
@@ -265,32 +272,43 @@ export function useStackPulseApp() {
 
   async function refreshContent() {
     setIsRefreshingContent(true);
-    const remoteBundle = await fetchRemoteContentBundle();
 
-    if (remoteBundle) {
-      setContentBundle(remoteBundle);
-      setContentSource("remote");
-      setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-      await persistContentBundle(remoteBundle);
+    try {
+      const remoteBundle = await fetchRemoteContentBundle();
 
-      setSelectedIssue((prev) => {
-        if (!prev) return null;
-        return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
-      });
+      if (remoteBundle) {
+        setContentBundle(remoteBundle);
+        setContentSource("remote");
+        setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
+        await persistContentBundle(remoteBundle);
+        setLastRefreshSucceeded(true);
+
+        setSelectedIssue((prev) => {
+          if (!prev) return null;
+          return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
+        });
+      } else {
+        setLastRefreshSucceeded(false);
+      }
+
+      return Boolean(remoteBundle);
+    } finally {
+      setIsRefreshingContent(false);
     }
-
-    setIsRefreshingContent(false);
-    return Boolean(remoteBundle);
   }
 
   return {
-    availableStacks: contentBundle.availableStacks,
+    availableStacks:
+      contentBundle.availableStacks.length > 0
+        ? contentBundle.availableStacks
+        : [...DEFAULT_STACK_OPTIONS],
     contentMeta: contentBundle.contentMeta,
     contentSource,
     currentTab,
     isReady,
     isOnboarded,
     isRefreshingContent,
+    lastRefreshSucceeded,
     notifications,
     preferences,
     refreshContent,

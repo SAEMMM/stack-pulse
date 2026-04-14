@@ -48,6 +48,13 @@ const resources = {
       feed: {
         kicker: "Today's Pulse",
         title: "Key developer issues, fast.",
+        updated: "Updated {{date}} · {{source}}",
+        refreshFailed: "Could not reach the latest content. Showing the last available set.",
+        source: {
+          empty: "no content",
+          cached: "cached",
+          remote: "live",
+        },
         emptyTitle: "No issues match this filter right now.",
         emptyBody: "Try widening your stack selection or switching filters.",
         filters: {
@@ -100,7 +107,7 @@ const resources = {
         contentFallback: "{{count}} fallback sources",
         contentLive: "Fetch {{mode}} · Enrichment {{enrichment}}",
         contentSource: {
-          bundled: "Using bundled app content.",
+          empty: "No synced content is available yet.",
           cached: "Using last synced cached content.",
           remote: "Using the latest remote content.",
         },
@@ -176,6 +183,13 @@ const resources = {
       feed: {
         kicker: "오늘의 브리핑",
         title: "핵심 기술 이슈만 빠르게 봅니다.",
+        updated: "{{date}} 기준 업데이트 · {{source}}",
+        refreshFailed: "최신 콘텐츠에 연결하지 못해 마지막으로 사용 가능한 데이터를 보여주고 있습니다.",
+        source: {
+          empty: "데이터 없음",
+          cached: "캐시 데이터",
+          remote: "실시간 연결",
+        },
         emptyTitle: "현재 조건에 맞는 이슈가 없습니다.",
         emptyBody: "스택 선택을 넓히거나 다른 필터로 전환하면 더 많은 이슈를 볼 수 있습니다.",
         filters: {
@@ -227,7 +241,7 @@ const resources = {
         contentFallback: "fallback 출처 {{count}}개",
         contentLive: "수집 {{mode}} · 생성 {{enrichment}}",
         contentSource: {
-          bundled: "앱에 포함된 기본 콘텐츠를 사용 중입니다.",
+          empty: "아직 동기화된 콘텐츠가 없습니다.",
           cached: "마지막으로 동기화된 캐시 콘텐츠를 사용 중입니다.",
           remote: "최신 원격 콘텐츠를 사용 중입니다.",
         },

@@ -15,7 +15,7 @@
     "originalExcerpt": "Next.js 16.2 is available with performance and stability improvements for modern React apps.",
     "host": "nextjs.org",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:40:15.679Z"
+    "collectedAt": "2026-04-14T01:49:48.404Z"
   },
   {
     "sourceId": "vercel-blog-post",
@@ -34,7 +34,7 @@
     "originalExcerpt": "Vercel highlights App Router performance wins and improved Turbopack stability in the latest release.",
     "host": "vercel.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:40:15.679Z"
+    "collectedAt": "2026-04-14T01:49:48.404Z"
   },
   {
     "sourceId": "security-advisory",
@@ -52,7 +52,7 @@
     "originalExcerpt": "A newly disclosed advisory points to potential supply-chain risk in a package commonly used near TypeScript build workflows.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:40:15.679Z"
+    "collectedAt": "2026-04-14T01:49:48.404Z"
   },
   {
     "sourceId": "react-rfc",
@@ -69,6 +69,116 @@
     "originalExcerpt": "The updated RFC clarifies stricter expectations around compiler escape hatches and coding patterns.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:40:15.679Z"
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "typescript-release",
+    "issueKey": "typescript-release",
+    "sourceType": "release_note",
+    "sourceName": "TypeScript GitHub Releases",
+    "url": "https://github.com/microsoft/TypeScript/releases",
+    "publishedAt": "2026-04-10T09:10:00Z",
+    "severity": "major",
+    "tags": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "originalTitle": "TypeScript 5.9 beta released",
+    "originalExcerpt": "TypeScript 5.9 beta introduces compiler ergonomics and tighter language service behavior for larger codebases.",
+    "host": "github.com",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "nodejs-blog-release",
+    "issueKey": "node-runtime-release",
+    "sourceType": "blog",
+    "sourceName": "Node.js Blog",
+    "url": "https://nodejs.org/en/blog",
+    "publishedAt": "2026-04-09T04:20:00Z",
+    "severity": "major",
+    "tags": [
+      "Node.js",
+      "Backend"
+    ],
+    "originalTitle": "Node.js runtime release improves startup and package tooling",
+    "originalExcerpt": "The latest Node.js release improves startup characteristics and updates package management behavior for server teams.",
+    "host": "nodejs.org",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "nestjs-release",
+    "issueKey": "nestjs-auth-update",
+    "sourceType": "release_note",
+    "sourceName": "NestJS GitHub Releases",
+    "url": "https://github.com/nestjs/nest/releases",
+    "publishedAt": "2026-04-08T13:00:00Z",
+    "severity": "major",
+    "tags": [
+      "NestJS",
+      "Backend",
+      "Node.js"
+    ],
+    "originalTitle": "NestJS auth and guard workflow update released",
+    "originalExcerpt": "NestJS ships updates that affect auth guard composition and module-level configuration patterns.",
+    "host": "github.com",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "prisma-release",
+    "issueKey": "prisma-query-engine",
+    "sourceType": "release_note",
+    "sourceName": "Prisma GitHub Releases",
+    "url": "https://github.com/prisma/prisma/releases",
+    "publishedAt": "2026-04-07T07:45:00Z",
+    "severity": "major",
+    "tags": [
+      "Prisma",
+      "Database",
+      "Backend"
+    ],
+    "originalTitle": "Prisma query engine and migrate updates released",
+    "originalExcerpt": "Prisma introduced query engine and migrate behavior changes that may affect local development and CI consistency.",
+    "host": "github.com",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "fastapi-security",
+    "issueKey": "fastapi-security-update",
+    "sourceType": "security",
+    "sourceName": "FastAPI GitHub Releases",
+    "url": "https://github.com/fastapi/fastapi/releases",
+    "publishedAt": "2026-04-06T06:30:00Z",
+    "severity": "security",
+    "tags": [
+      "FastAPI",
+      "Python",
+      "Backend"
+    ],
+    "originalTitle": "FastAPI security update addresses request validation edge case",
+    "originalExcerpt": "A FastAPI release addresses a security-sensitive request validation edge case in specific backend deployments.",
+    "host": "github.com",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
+  },
+  {
+    "sourceId": "react-blog-post",
+    "issueKey": "react-compiler-rfc",
+    "sourceType": "blog",
+    "sourceName": "React Blog",
+    "url": "https://react.dev/blog",
+    "publishedAt": "2026-04-11T12:00:00Z",
+    "severity": "breaking",
+    "tags": [
+      "React"
+    ],
+    "originalTitle": "Compiler guidance updated for React teams",
+    "originalExcerpt": "The React team published updated guidance around compiler adoption and escape hatch usage.",
+    "host": "react.dev",
+    "isOfficial": true,
+    "collectedAt": "2026-04-14T01:49:48.404Z"
   }
 ]

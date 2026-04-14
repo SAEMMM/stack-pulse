@@ -38,6 +38,46 @@ const sourceDefinitions = [
     mode: "rss",
     url: "https://react.dev/rss.xml",
   },
+  {
+    key: "typescript-releases",
+    name: "TypeScript GitHub Releases",
+    sourceType: "release_note",
+    isOfficial: true,
+    mode: "github_releases",
+    url: "https://api.github.com/repos/microsoft/TypeScript/releases?per_page=5",
+  },
+  {
+    key: "nodejs-blog",
+    name: "Node.js Blog",
+    sourceType: "blog",
+    isOfficial: true,
+    mode: "rss",
+    url: "https://nodejs.org/en/feed/blog.xml",
+  },
+  {
+    key: "nestjs-releases",
+    name: "NestJS GitHub Releases",
+    sourceType: "release_note",
+    isOfficial: true,
+    mode: "github_releases",
+    url: "https://api.github.com/repos/nestjs/nest/releases?per_page=5",
+  },
+  {
+    key: "prisma-releases",
+    name: "Prisma GitHub Releases",
+    sourceType: "release_note",
+    isOfficial: true,
+    mode: "github_releases",
+    url: "https://api.github.com/repos/prisma/prisma/releases?per_page=5",
+  },
+  {
+    key: "fastapi-releases",
+    name: "FastAPI GitHub Releases",
+    sourceType: "release_note",
+    isOfficial: true,
+    mode: "github_releases",
+    url: "https://api.github.com/repos/fastapi/fastapi/releases?per_page=5",
+  },
 ];
 
 const issueMatchers = [
@@ -76,6 +116,51 @@ const issueMatchers = [
         haystack.includes("react compiler") &&
         (haystack.includes("rfc") || haystack.includes("escape hatch"))
       );
+    },
+  },
+  {
+    issueKey: "typescript-release",
+    severity: "major",
+    tags: ["TypeScript", "Node.js"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("typescript") && haystack.includes("released");
+    },
+  },
+  {
+    issueKey: "node-runtime-release",
+    severity: "major",
+    tags: ["Node.js", "Backend"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("node.js") && haystack.includes("release");
+    },
+  },
+  {
+    issueKey: "nestjs-auth-update",
+    severity: "major",
+    tags: ["NestJS", "Backend", "Node.js"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("nestjs") && (haystack.includes("auth") || haystack.includes("guard"));
+    },
+  },
+  {
+    issueKey: "prisma-query-engine",
+    severity: "major",
+    tags: ["Prisma", "Database", "Backend"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("prisma") && (haystack.includes("query engine") || haystack.includes("migrate"));
+    },
+  },
+  {
+    issueKey: "fastapi-security-update",
+    severity: "security",
+    tags: ["FastAPI", "Python", "Backend"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("fastapi") && (haystack.includes("security") || haystack.includes("vulnerability"));
     },
   },
 ];

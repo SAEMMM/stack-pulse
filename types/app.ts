@@ -97,4 +97,4 @@ export type ContentBundle = {
   contentMeta: ContentMeta;
 };
 
-export type ContentSource = "bundled" | "cached" | "remote";
+export type ContentSource = "empty" | "cached" | "remote";

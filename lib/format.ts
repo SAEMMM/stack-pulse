@@ -164,6 +164,17 @@ export function getPrimaryKeyLine(issue: Issue, mode: LanguageMode) {
   return interpretation[0] ?? action[0] ?? summary;
 }
 
+export function formatShortDate(value: string, language: UiLanguage) {
+  if (!value) {
+    return language === "ko" ? "없음" : "N/A";
+  }
+
+  return new Intl.DateTimeFormat(language === "ko" ? "ko-KR" : "en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
 export function sortIssues(issues: Issue[], states: Record<string, IssueState>, stacks: string[]) {
   return [...issues].sort((a, b) => {
     const severityScore = { security: 3, breaking: 2, major: 1 };

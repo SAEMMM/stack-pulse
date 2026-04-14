@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import { Issue, IssueState, LanguageMode, UiLanguage, UserRole } from "../types/app";
+import { ContentMeta, ContentSource, Issue, IssueState, LanguageMode, UiLanguage, UserRole } from "../types/app";
+import { formatShortDate } from "../lib/format";
 import { IssueCard } from "./IssueCard";
 
 type FeedFilter = "all" | "my_stack" | "security" | "breaking" | "unread";
@@ -10,26 +11,40 @@ type FeedFilter = "all" | "my_stack" | "security" | "breaking" | "unread";
 export function FeedScreen({
   issues,
   states,
+  contentMeta,
+  contentSource,
   mode,
   uiLanguage,
   stacks,
   role,
+  isRefreshing,
+  lastRefreshSucceeded,
   onPressIssue,
+  onRefresh,
   onToggleSaved,
   onChangeUiLanguage,
 }: {
   issues: Issue[];
   states: Record<string, IssueState>;
+  contentMeta: ContentMeta;
+  contentSource: ContentSource;
   mode: LanguageMode;
   uiLanguage: UiLanguage;
   stacks: string[];
   role: UserRole;
+  isRefreshing: boolean;
+  lastRefreshSucceeded: boolean | null;
   onPressIssue: (issue: Issue) => void;
+  onRefresh: () => Promise<boolean>;
   onToggleSaved: (issueId: string) => void;
   onChangeUiLanguage: (language: UiLanguage) => void;
 }) {
   const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
+  const updatedLabel = t("feed.updated", {
+    date: formatShortDate(contentMeta.lastUpdatedAt, uiLanguage),
+    source: t(`feed.source.${contentSource}`),
+  });
   const filterOptions = useMemo(
     () => [
       { key: "all" as const, label: t("feed.filters.all"), count: issues.length },
@@ -74,7 +89,17 @@ export function FeedScreen({
   }, [activeFilter, issues, stacks, states]);
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.accentStrong}
+        />
+      }
+    >
       <Text style={styles.kicker}>{t("feed.kicker")}</Text>
       <View style={styles.languageSwitch}>
         <Pressable
@@ -95,6 +120,10 @@ export function FeedScreen({
         </Pressable>
       </View>
       <Text style={styles.title}>{t("feed.title")}</Text>
+      <Text style={styles.updated}>{updatedLabel}</Text>
+      {lastRefreshSucceeded === false ? (
+        <Text style={styles.refreshWarning}>{t("feed.refreshFailed")}</Text>
+      ) : null}
 
       <View style={styles.filterRow}>
         {filterOptions.map((filter) => {
@@ -162,6 +191,20 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 34,
     marginTop: spacing.sm,
+  },
+  updated: {
+    color: colors.subtext,
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: spacing.md,
+    marginTop: spacing.xs,
+  },
+  refreshWarning: {
+    color: colors.breaking,
+    fontSize: 12,
+    fontWeight: "700",
+    marginBottom: spacing.md,
+    marginTop: -spacing.sm,
   },
   languageSwitch: {
     alignSelf: "flex-start",

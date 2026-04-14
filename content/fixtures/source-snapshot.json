@@ -46,5 +46,77 @@
     "tags": ["React"],
     "originalTitle": "React Compiler RFC updated with stricter escape hatches",
     "originalExcerpt": "The updated RFC clarifies stricter expectations around compiler escape hatches and coding patterns."
+  },
+  {
+    "sourceId": "typescript-release",
+    "issueKey": "typescript-release",
+    "sourceType": "release_note",
+    "sourceName": "TypeScript GitHub Releases",
+    "url": "https://github.com/microsoft/TypeScript/releases",
+    "publishedAt": "2026-04-10T09:10:00Z",
+    "severity": "major",
+    "tags": ["TypeScript", "Node.js"],
+    "originalTitle": "TypeScript 5.9 beta released",
+    "originalExcerpt": "TypeScript 5.9 beta introduces compiler ergonomics and tighter language service behavior for larger codebases."
+  },
+  {
+    "sourceId": "nodejs-blog-release",
+    "issueKey": "node-runtime-release",
+    "sourceType": "blog",
+    "sourceName": "Node.js Blog",
+    "url": "https://nodejs.org/en/blog",
+    "publishedAt": "2026-04-09T04:20:00Z",
+    "severity": "major",
+    "tags": ["Node.js", "Backend"],
+    "originalTitle": "Node.js runtime release improves startup and package tooling",
+    "originalExcerpt": "The latest Node.js release improves startup characteristics and updates package management behavior for server teams."
+  },
+  {
+    "sourceId": "nestjs-release",
+    "issueKey": "nestjs-auth-update",
+    "sourceType": "release_note",
+    "sourceName": "NestJS GitHub Releases",
+    "url": "https://github.com/nestjs/nest/releases",
+    "publishedAt": "2026-04-08T13:00:00Z",
+    "severity": "major",
+    "tags": ["NestJS", "Backend", "Node.js"],
+    "originalTitle": "NestJS auth and guard workflow update released",
+    "originalExcerpt": "NestJS ships updates that affect auth guard composition and module-level configuration patterns."
+  },
+  {
+    "sourceId": "prisma-release",
+    "issueKey": "prisma-query-engine",
+    "sourceType": "release_note",
+    "sourceName": "Prisma GitHub Releases",
+    "url": "https://github.com/prisma/prisma/releases",
+    "publishedAt": "2026-04-07T07:45:00Z",
+    "severity": "major",
+    "tags": ["Prisma", "Database", "Backend"],
+    "originalTitle": "Prisma query engine and migrate updates released",
+    "originalExcerpt": "Prisma introduced query engine and migrate behavior changes that may affect local development and CI consistency."
+  },
+  {
+    "sourceId": "fastapi-security",
+    "issueKey": "fastapi-security-update",
+    "sourceType": "security",
+    "sourceName": "FastAPI GitHub Releases",
+    "url": "https://github.com/fastapi/fastapi/releases",
+    "publishedAt": "2026-04-06T06:30:00Z",
+    "severity": "security",
+    "tags": ["FastAPI", "Python", "Backend"],
+    "originalTitle": "FastAPI security update addresses request validation edge case",
+    "originalExcerpt": "A FastAPI release addresses a security-sensitive request validation edge case in specific backend deployments."
+  },
+  {
+    "sourceId": "react-blog-post",
+    "issueKey": "react-compiler-rfc",
+    "sourceType": "blog",
+    "sourceName": "React Blog",
+    "url": "https://react.dev/blog",
+    "publishedAt": "2026-04-11T12:00:00Z",
+    "severity": "breaking",
+    "tags": ["React"],
+    "originalTitle": "Compiler guidance updated for React teams",
+    "originalExcerpt": "The React team published updated guidance around compiler adoption and escape hatch usage."
   }
 ]

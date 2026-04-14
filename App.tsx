@@ -74,11 +74,16 @@ export default function App() {
           <FeedScreen
             issues={app.sortedIssues}
             states={app.states}
+            contentMeta={app.contentMeta}
+            contentSource={app.contentSource}
             mode={app.preferences.languageMode}
             uiLanguage={app.preferences.uiLanguage}
             stacks={app.preferences.stacks}
             role={app.preferences.role}
+            isRefreshing={app.isRefreshingContent}
+            lastRefreshSucceeded={app.lastRefreshSucceeded}
             onPressIssue={app.openIssue}
+            onRefresh={app.refreshContent}
             onToggleSaved={app.toggleSaved}
             onChangeUiLanguage={changeUiLanguage}
           />
