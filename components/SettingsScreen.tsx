@@ -2,7 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
-import { availableStacks } from "../lib/issues";
+import { availableStacks, generatedContentMeta } from "../lib/issues";
 import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
 import { UserPreferences } from "../types/app";
 
@@ -39,6 +39,24 @@ export function SettingsScreen({
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{t("settings.title")}</Text>
       <Text style={styles.subtitle}>{t("settings.subtitle")}</Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("settings.content")}</Text>
+        <Text style={styles.optionBody}>
+          {t("settings.contentUpdated", {
+            date: new Date(generatedContentMeta.lastUpdatedAt).toLocaleDateString(),
+          })}
+        </Text>
+        <Text style={styles.optionBody}>{t("settings.contentIssues", { count: generatedContentMeta.issueCount })}</Text>
+        <Text style={styles.optionBody}>{t("settings.contentSources", { count: generatedContentMeta.sourceCount })}</Text>
+        <Text style={styles.optionBody}>{t("settings.contentFallback", { count: generatedContentMeta.fallbackSourceCount })}</Text>
+        <Text style={styles.optionBody}>
+          {t("settings.contentLive", {
+            mode: generatedContentMeta.fetchMode,
+            enrichment: generatedContentMeta.enrichmentMode,
+          })}
+        </Text>
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("settings.uiLanguage")}</Text>

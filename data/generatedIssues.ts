@@ -1,4 +1,4 @@
-import { Issue } from "../types/app";
+import { ContentMeta, Issue } from "../types/app";
 
 export const generatedIssues: Issue[] = [
   {
@@ -232,3 +232,14 @@ export const availableStacks = [
   "TypeScript",
   "Vercel"
 ];
+
+export const generatedContentMeta: ContentMeta = {
+  "generatedAt": "2026-04-14T01:32:18.012Z",
+  "issueCount": 3,
+  "sourceCount": 4,
+  "officialSourceCount": 4,
+  "fallbackSourceCount": 0,
+  "lastUpdatedAt": "2026-04-13T02:30:00Z",
+  "fetchMode": "fixture",
+  "enrichmentMode": "baseline"
+};

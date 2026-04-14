@@ -1,3 +1,3 @@
-import { availableStacks, generatedIssues } from "../data/generatedIssues";
+import { availableStacks, generatedContentMeta, generatedIssues } from "../data/generatedIssues";
 
-export { availableStacks, generatedIssues };
+export { availableStacks, generatedContentMeta, generatedIssues };

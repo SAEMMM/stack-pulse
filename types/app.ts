@@ -79,3 +79,14 @@ export type IssueState = {
   isSaved: boolean;
   isNotified: boolean;
 };
+
+export type ContentMeta = {
+  generatedAt: string;
+  issueCount: number;
+  sourceCount: number;
+  officialSourceCount: number;
+  fallbackSourceCount: number;
+  lastUpdatedAt: string;
+  fetchMode: string;
+  enrichmentMode: string;
+};

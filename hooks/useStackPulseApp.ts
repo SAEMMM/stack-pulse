@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { generatedIssues } from "../lib/issues";
+import { generatedContentMeta, generatedIssues } from "../lib/issues";
 import { AppTab, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
 import { getNotificationPermissionState } from "../lib/notifications";
@@ -152,6 +152,7 @@ export function useStackPulseApp() {
   }
 
   return {
+    contentMeta: generatedContentMeta,
     currentTab,
     isReady,
     isOnboarded,

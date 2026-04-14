@@ -6,6 +6,8 @@ const fetchedSourcesPath = path.join(projectRoot, "content", "fetched-sources.js
 const generatedEnrichmentsPath = path.join(projectRoot, "content", "generated-enrichments.json");
 const baselineEnrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
 const outputPath = path.join(projectRoot, "data", "generatedIssues.ts");
+const fetchMode = process.env.STACK_PULSE_FETCH_MODE ?? "fixture";
+const enrichmentMode = process.env.STACK_PULSE_ENRICHMENT_MODE ?? "baseline";
 
 const fetchedSources = JSON.parse(fs.readFileSync(fetchedSourcesPath, "utf8"));
 const enrichmentsPath = fs.existsSync(generatedEnrichmentsPath)
@@ -92,11 +94,24 @@ const availableStacks = unique(issues.flatMap((issue) => issue.tags)).sort((a, b
   a.localeCompare(b),
 );
 
-const fileContents = `import { Issue } from "../types/app";
+const contentMeta = {
+  generatedAt: new Date().toISOString(),
+  issueCount: issues.length,
+  sourceCount: fetchedSources.length,
+  officialSourceCount: fetchedSources.filter((item) => item.isOfficial ?? false).length,
+  fallbackSourceCount: fetchedSources.filter((item) => item.fallback).length,
+  lastUpdatedAt: issues[0]?.publishedAt ?? new Date().toISOString(),
+  fetchMode,
+  enrichmentMode,
+};
+
+const fileContents = `import { ContentMeta, Issue } from "../types/app";
 
 export const generatedIssues: Issue[] = ${JSON.stringify(issues, null, 2)};
 
 export const availableStacks = ${JSON.stringify(availableStacks, null, 2)};
+
+export const generatedContentMeta: ContentMeta = ${JSON.stringify(contentMeta, null, 2)};
 `;
 
 fs.writeFileSync(outputPath, fileContents);
