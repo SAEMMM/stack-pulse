@@ -58,7 +58,6 @@ bower_components
 # Env files
 .env
 .env.*
-!.env.example
 
 # Misc
 .DS_Store
