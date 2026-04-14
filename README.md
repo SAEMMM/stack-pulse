@@ -124,7 +124,8 @@ StackPulse는 글로벌 개발자를 대상으로 하며, 다국어 UX를 제품
 - Expo
 - React Native
 - TypeScript
-- Node.js 로컬 API 서버
+- Node.js API 서버
+- SQLite (현재 개발/검증용 저장소)
 
 ## ▶️ 실행 방법
 
@@ -206,30 +207,46 @@ App.tsx       앱 엔트리
    이슈별 summary / interpretation / action 생성
 3. `content:build`
    `content/app-content.json` 생성
-4. `server/index.mjs`
-   스택별 최신 이슈를 API로 제공
+4. `content:sync-db`
+   SQLite에 이슈/소스/클러스터 데이터 적재
+5. `server/index.mjs`
+   DB 기준으로 스택별 최신 이슈를 API로 제공
 5. 앱
    선택한 스택 기준으로 `/api/feed?stacks=...` 조회
 
 즉 현재 앱은 콘텐츠 자체를 로컬에 저장해두고 보여주지 않고, API 기준으로 최신 목록을 다시 조회합니다.
 로컬에 저장되는 것은 `read / saved / notified / onboarding 설정` 같은 사용자 상태뿐입니다.
 
+## 📦 배포 준비 상태
+
+- `app.config.ts` 기반으로 앱 설정을 환경변수로 관리
+- `eas.json`으로 development / preview / production 빌드 프로필 분리
+- 앱 안에 문의 메일, 저작권, 정책 링크 진입점 포함
+- 광고 도입을 고려해 추적 설명 문구와 광고 on/off 환경값 준비
+
+정책 초안:
+
+- [Privacy Policy](https://github.com/SAEMMM/stack-pulse/blob/main/docs/privacy-policy.md)
+- [Terms of Service](https://github.com/SAEMMM/stack-pulse/blob/main/docs/terms-of-service.md)
+
 ## ⚠️ 현재 한계
 
-- 서버는 아직 운영용 DB를 사용하지 않습니다
+- 서버 저장소는 아직 SQLite 기준이며 운영용 Postgres 전환이 남아 있습니다
 - 현재 refresh는 로컬 콘텐츠 파이프라인을 다시 실행하는 개발용 구조입니다
 - 공식 소스 수집은 가능하지만, 기본 검증은 fixture 기반으로 돌아갑니다
-- 진짜 운영 단계에서는 DB와 백엔드 배치/크론이 필요합니다
+- 앱스토어 배포 전 실제 privacy / terms / support URL을 운영 도메인으로 교체해야 합니다
+- 진짜 운영 단계에서는 Postgres, 백엔드 배치/크론, 호스팅된 HTTPS API가 필요합니다
 
 ## 🧭 다음 단계
 
 다음 구현 우선순위는 아래와 같습니다.
 
-1. 서버 저장소(DB) 추가
+1. Postgres 기반 운영 DB 전환
 2. 수집 파이프라인을 서버 쪽 배치/잡으로 이동
 3. 공식 소스 live fetch를 기본 경로로 전환
 4. AI 기반 Summary / Interpretation / Action 생성 품질 고도화
-5. 사용자별 상태를 서버와 동기화
+5. 광고 SDK 연동 전 privacy / tracking / placement 정책 확정
+6. 사용자별 상태를 서버와 동기화
 
 ## 📌 제품 원칙
 

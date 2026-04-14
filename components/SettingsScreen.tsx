@@ -1,9 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
 import { formatShortDate } from "../lib/format";
 import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
+import { runtimeConfig } from "../lib/runtimeConfig";
 import { ContentMeta, ContentSource, UserPreferences } from "../types/app";
 
 export function SettingsScreen({
@@ -41,6 +42,10 @@ export function SettingsScreen({
 
   async function refreshContent() {
     await onRefreshContent();
+  }
+
+  function openExternal(url: string) {
+    Linking.openURL(url).catch(() => undefined);
   }
 
   function toggleStack(stack: string) {
@@ -204,6 +209,30 @@ export function SettingsScreen({
         </Pressable>
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("settings.legal")}</Text>
+        <Pressable style={styles.linkRow} onPress={() => openExternal(runtimeConfig.privacyPolicyUrl)}>
+          <Text style={styles.linkText}>{t("settings.privacyPolicy")}</Text>
+        </Pressable>
+        <Pressable style={styles.linkRow} onPress={() => openExternal(runtimeConfig.termsUrl)}>
+          <Text style={styles.linkText}>{t("settings.termsOfService")}</Text>
+        </Pressable>
+        <Pressable style={styles.linkRow} onPress={() => openExternal(`mailto:${runtimeConfig.supportEmail}`)}>
+          <Text style={styles.linkText}>{t("settings.contactSupport")}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("settings.advertising")}</Text>
+        <Text style={styles.optionTitle}>{t("settings.advertisingTitle")}</Text>
+        <Text style={styles.optionBody}>{t("settings.advertisingBody")}</Text>
+        <Text style={styles.optionBody}>
+          {runtimeConfig.adsEnabled
+            ? t("settings.advertisingStatusOn")
+            : t("settings.advertisingStatusOff")}
+        </Text>
+      </View>
+
       <View style={styles.footer}>
         <Text style={styles.footerTitle}>{t("settings.footerTitle")}</Text>
         <Text style={styles.footerText}>{t("settings.footerDeveloper")}</Text>
@@ -337,6 +366,16 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: "#ffffff",
+  },
+  linkRow: {
+    borderBottomColor: colors.border,
+    borderBottomWidth: 1,
+    paddingVertical: 14,
+  },
+  linkText: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "700",
   },
   footer: {
     paddingBottom: spacing.lg,

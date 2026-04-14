@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 14.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_STACK_PULSE_API_URL": "http://127.0.0.1:4318"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_STACK_PULSE_API_URL": "https://api-preview.example.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_STACK_PULSE_API_URL": "https://api.stackpulse.app"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
