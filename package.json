@@ -9,6 +9,7 @@
     "android": "expo start --android",
     "web": "expo start --web",
     "content:fetch": "node scripts/fetch-sources.mjs",
+    "content:enrich": "node scripts/generate-enrichments.mjs",
     "typecheck": "tsc --noEmit",
     "content:build": "node scripts/generate-issues.mjs",
     "content:refresh": "node scripts/refresh-content.mjs"

@@ -3,10 +3,14 @@ import path from "node:path";
 
 const projectRoot = process.cwd();
 const fetchedSourcesPath = path.join(projectRoot, "content", "fetched-sources.json");
-const enrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
+const generatedEnrichmentsPath = path.join(projectRoot, "content", "generated-enrichments.json");
+const baselineEnrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
 const outputPath = path.join(projectRoot, "data", "generatedIssues.ts");
 
 const fetchedSources = JSON.parse(fs.readFileSync(fetchedSourcesPath, "utf8"));
+const enrichmentsPath = fs.existsSync(generatedEnrichmentsPath)
+  ? generatedEnrichmentsPath
+  : baselineEnrichmentsPath;
 const enrichments = JSON.parse(fs.readFileSync(enrichmentsPath, "utf8"));
 
 function unique(items) {

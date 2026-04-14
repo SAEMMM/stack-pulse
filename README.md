@@ -151,11 +151,13 @@ npm run typecheck
 
 ```bash
 npm run content:fetch
+npm run content:enrich
 npm run content:build
 ```
 
 `content:fetch`는 공식 소스 fetcher를 우선 시도하고, 실패 시 fixture 스냅샷으로 fallback해  
 `content/fetched-sources.json`을 생성합니다.  
+`content:enrich`는 AI 생성 모드를 붙일 수 있는 enrichment 단계이며, 현재는 baseline fallback을 기본으로 사용합니다.  
 `content:build`는 이를 바탕으로 해석/액션 데이터를 결합해 앱이 사용하는 `data/generatedIssues.ts`를 생성합니다.
 
 한 번에 순차 실행하려면 아래 명령을 사용할 수 있습니다.
