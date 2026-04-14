@@ -117,7 +117,12 @@ export function IssueDetailScreen({
       <Section title={t("detail.sources")}>
         {issue.sources.map((source) => (
           <Pressable key={source.url} onPress={() => Linking.openURL(source.url)}>
-            <Text style={styles.source}>• {source.title}</Text>
+            <View style={styles.sourceRow}>
+              <Text style={styles.source}>• {source.title}</Text>
+              <Text style={styles.sourceMeta}>
+                {source.isOfficial ? t("detail.official") : source.type} · {source.host || source.type}
+              </Text>
+            </View>
           </Pressable>
         ))}
       </Section>
@@ -277,7 +282,14 @@ const styles = StyleSheet.create({
     color: colors.accentStrong,
     fontSize: 15,
     lineHeight: 22,
-    marginBottom: spacing.xs,
+  },
+  sourceRow: {
+    marginBottom: spacing.sm,
+  },
+  sourceMeta: {
+    color: colors.subtext,
+    fontSize: 12,
+    marginTop: 2,
   },
   buttonRow: {
     gap: spacing.sm,

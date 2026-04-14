@@ -53,7 +53,14 @@ export type Issue = {
     };
   };
   sourceCount: number;
-  sources: { title: string; url: string }[];
+  sources: {
+    title: string;
+    url: string;
+    type: string;
+    host: string;
+    isOfficial: boolean;
+    publishedAt: string;
+  }[];
   publishedAt: string;
   readTime: string;
 };

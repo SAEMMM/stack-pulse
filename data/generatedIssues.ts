@@ -53,7 +53,11 @@ export const generatedIssues: Issue[] = [
     "sources": [
       {
         "title": "GitHub Advisory",
-        "url": "https://github.com/advisories"
+        "url": "https://github.com/advisories",
+        "type": "security",
+        "host": "github.com",
+        "isOfficial": true,
+        "publishedAt": "2026-04-13T02:30:00Z"
       }
     ],
     "publishedAt": "2026-04-13T02:30:00Z",
@@ -113,11 +117,19 @@ export const generatedIssues: Issue[] = [
     "sources": [
       {
         "title": "Vercel Blog",
-        "url": "https://vercel.com/blog"
+        "url": "https://vercel.com/blog",
+        "type": "blog",
+        "host": "vercel.com",
+        "isOfficial": true,
+        "publishedAt": "2026-04-12T10:00:00Z"
       },
       {
         "title": "Next.js Release Notes",
-        "url": "https://nextjs.org"
+        "url": "https://nextjs.org",
+        "type": "release_note",
+        "host": "nextjs.org",
+        "isOfficial": true,
+        "publishedAt": "2026-04-12T08:00:00Z"
       }
     ],
     "publishedAt": "2026-04-12T10:00:00Z",
@@ -173,7 +185,11 @@ export const generatedIssues: Issue[] = [
     "sources": [
       {
         "title": "React RFC",
-        "url": "https://github.com/reactjs"
+        "url": "https://github.com/reactjs",
+        "type": "rfc",
+        "host": "github.com",
+        "isOfficial": true,
+        "publishedAt": "2026-04-11T11:15:00Z"
       }
     ],
     "publishedAt": "2026-04-11T11:15:00Z",

@@ -10,6 +10,7 @@ const sourceDefinitions = [
     key: "nextjs-releases",
     name: "Next.js GitHub Releases",
     sourceType: "release_note",
+    isOfficial: true,
     mode: "github_releases",
     url: "https://api.github.com/repos/vercel/next.js/releases?per_page=5",
   },
@@ -17,6 +18,7 @@ const sourceDefinitions = [
     key: "vercel-blog",
     name: "Vercel Blog",
     sourceType: "blog",
+    isOfficial: true,
     mode: "rss",
     url: "https://vercel.com/blog/rss.xml",
   },
@@ -24,6 +26,7 @@ const sourceDefinitions = [
     key: "github-advisories",
     name: "GitHub Advisory Database",
     sourceType: "security",
+    isOfficial: true,
     mode: "github_advisories",
     url: "https://api.github.com/advisories?ecosystem=npm&per_page=20",
   },
@@ -31,6 +34,7 @@ const sourceDefinitions = [
     key: "react-blog",
     name: "React Blog",
     sourceType: "blog",
+    isOfficial: true,
     mode: "rss",
     url: "https://react.dev/rss.xml",
   },
@@ -105,6 +109,14 @@ function slugify(value) {
     .slice(0, 60);
 }
 
+function getHost(url) {
+  try {
+    return new URL(url).host.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
 function parseXmlEntries(xml) {
   const itemMatches = [...xml.matchAll(/<item\b[\s\S]*?<\/item>/g)];
   if (itemMatches.length > 0) {
@@ -138,6 +150,7 @@ function parseRssFeed(xml, source) {
       sourceKey: source.key,
       sourceName: source.name,
       sourceType: source.sourceType,
+      isOfficial: source.isOfficial,
       title: readXmlTag(entry, ["title"]),
       excerpt: readXmlTag(entry, ["description", "summary", "content"]),
       url: readXmlTag(entry, ["link", "id"]),
@@ -153,6 +166,7 @@ function parseGitHubReleases(items, source) {
       sourceKey: source.key,
       sourceName: source.name,
       sourceType: source.sourceType,
+      isOfficial: source.isOfficial,
       title: normalizeWhitespace(item.name || item.tag_name || "Untitled release"),
       excerpt: stripHtml(item.body || ""),
       url: item.html_url,
@@ -165,6 +179,7 @@ function parseGitHubAdvisories(items, source) {
     sourceKey: source.key,
     sourceName: source.name,
     sourceType: source.sourceType,
+    isOfficial: source.isOfficial,
     title: normalizeWhitespace(item.summary || item.cve_id || "Untitled advisory"),
     excerpt: stripHtml(item.description || item.summary || ""),
     url: item.html_url || item.references?.[0]?.url || "https://github.com/advisories",
@@ -234,6 +249,8 @@ function normalizeCollectedEntry(entry) {
     sourceType: entry.sourceType,
     sourceName: entry.sourceName,
     url: entry.url,
+    host: getHost(entry.url),
+    isOfficial: entry.isOfficial ?? false,
     publishedAt: entry.publishedAt || new Date().toISOString(),
     severity: matchedIssue.severity,
     tags: matchedIssue.tags,
@@ -243,13 +260,21 @@ function normalizeCollectedEntry(entry) {
   };
 }
 
+function normalizeFixtureEntry(entry) {
+  return {
+    ...entry,
+    host: entry.host ?? getHost(entry.url),
+    isOfficial: entry.isOfficial ?? true,
+    collectedAt: entry.collectedAt ?? new Date().toISOString(),
+  };
+}
+
 function mergeWithFixtures(collected, fixtures) {
   const seenKeys = new Set(collected.map((item) => item.issueKey));
   const fallback = fixtures
     .filter((item) => !seenKeys.has(item.issueKey))
     .map((item) => ({
-      ...item,
-      collectedAt: new Date().toISOString(),
+      ...normalizeFixtureEntry(item),
       fallback: true,
     }));
 
@@ -300,10 +325,10 @@ async function main() {
     } catch (error) {
       console.warn("Live fetch failed, falling back to fixture snapshot.");
       console.warn(error instanceof Error ? error.message : String(error));
-      sources = fixtureSnapshot;
+      sources = fixtureSnapshot.map(normalizeFixtureEntry);
     }
   } else {
-    sources = fixtureSnapshot;
+    sources = fixtureSnapshot.map(normalizeFixtureEntry);
   }
 
   fs.writeFileSync(outputPath, `${JSON.stringify(sources, null, 2)}\n`);

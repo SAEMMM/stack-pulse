@@ -17,6 +17,19 @@ function sortByDateDesc(a, b) {
   return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
 }
 
+function dedupeSources(items) {
+  const seen = new Set();
+
+  return items.filter((item) => {
+    const key = item.url || `${item.sourceName}-${item.originalTitle}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 function mergeIssue(group) {
   const latest = [...group].sort(sortByDateDesc)[0];
   const enrichment = enrichments[latest.issueKey];
@@ -39,11 +52,15 @@ function mergeIssue(group) {
     action,
     impact: enrichment.impact,
     sourceCount: group.length,
-    sources: group
+    sources: dedupeSources(group)
       .sort(sortByDateDesc)
       .map((item) => ({
         title: item.sourceName,
         url: item.url,
+        type: item.sourceType,
+        host: item.host ?? "",
+        isOfficial: item.isOfficial ?? false,
+        publishedAt: item.publishedAt,
       })),
     publishedAt: latest.publishedAt,
     readTime: `${Math.max(2, interpretation.ko.length)} min`,
