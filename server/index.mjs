@@ -1,6 +1,6 @@
 import http from "node:http";
 import { spawn } from "node:child_process";
-import { openDatabase, getDatabasePath } from "./db.mjs";
+import { createStore, getStoreInfo } from "./store.mjs";
 
 const PORT = Number(process.env.STACK_PULSE_API_PORT || 4318);
 const HOST = process.env.STACK_PULSE_API_HOST || "0.0.0.0";
@@ -70,80 +70,6 @@ function runContentRefresh() {
   return refreshInFlight;
 }
 
-function getContentMeta(db) {
-  const row = db.prepare(`SELECT value_json FROM metadata WHERE key = ?`).get("content_meta");
-  return row ? JSON.parse(row.value_json) : null;
-}
-
-function getAvailableStacks(db) {
-  const row = db.prepare(`SELECT value_json FROM metadata WHERE key = ?`).get("available_stacks");
-  return row ? JSON.parse(row.value_json) : [];
-}
-
-function getFeed(db, stacks, cursor, limit) {
-  const filters = stacks.filter(Boolean);
-  const baseSelect = `
-    SELECT DISTINCT issues.payload_json AS payload_json
-    FROM issues
-    LEFT JOIN issue_tags ON issue_tags.issue_id = issues.id
-  `;
-
-  let rows;
-
-  if (filters.length > 0) {
-    const placeholders = filters.map(() => "?").join(", ");
-    rows = db
-      .prepare(
-        `${baseSelect}
-         WHERE issue_tags.tag IN (${placeholders})
-         ORDER BY datetime(issues.published_at) DESC`,
-      )
-      .all(...filters);
-  } else {
-    rows = db
-      .prepare(
-        `${baseSelect}
-         ORDER BY datetime(issues.published_at) DESC`,
-      )
-      .all();
-  }
-
-  const allIssues = rows.map((row) => JSON.parse(row.payload_json));
-  const offset = Number.parseInt(cursor || "0", 10);
-  const safeOffset = Number.isFinite(offset) && offset > 0 ? offset : 0;
-  const safeLimit = Math.min(Math.max(limit, 1), 50);
-  const issues = allIssues.slice(safeOffset, safeOffset + safeLimit);
-  const nextCursor =
-    safeOffset + safeLimit < allIssues.length ? String(safeOffset + safeLimit) : null;
-  const contentMeta = getContentMeta(db);
-
-  return {
-    issues,
-    availableStacks: getAvailableStacks(db),
-    nextCursor,
-    contentMeta: contentMeta
-      ? {
-          ...contentMeta,
-          issueCount: allIssues.length,
-        }
-      : {
-          generatedAt: "",
-          issueCount: allIssues.length,
-          sourceCount: 0,
-          officialSourceCount: 0,
-          fallbackSourceCount: 0,
-          lastUpdatedAt: "",
-          fetchMode: "db_empty",
-          enrichmentMode: "db_empty",
-        },
-  };
-}
-
-function getIssueById(db, issueId) {
-  const row = db.prepare(`SELECT payload_json FROM issues WHERE id = ?`).get(issueId);
-  return row ? JSON.parse(row.payload_json) : null;
-}
-
 const server = http.createServer(async (req, res) => {
   if (!req.url) {
     notFound(res);
@@ -163,9 +89,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && url.pathname === "/health") {
+    const storeInfo = getStoreInfo();
     json(res, 200, {
       ok: true,
-      dbPath: getDatabasePath(),
+      database: storeInfo,
       host: HOST,
       port: PORT,
       environment: process.env.NODE_ENV || "development",
@@ -188,10 +115,10 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  let db;
+  let store;
 
   try {
-    db = openDatabase();
+    store = await createStore();
   } catch (error) {
     json(res, 500, {
       error: "db_unavailable",
@@ -209,13 +136,13 @@ const server = http.createServer(async (req, res) => {
       const cursor = url.searchParams.get("cursor");
       const limit = Number.parseInt(url.searchParams.get("limit") || "20", 10);
 
-      json(res, 200, getFeed(db, stacks, cursor, limit));
+      json(res, 200, await store.getFeed(stacks, cursor, limit));
       return;
     }
 
     if (req.method === "GET" && url.pathname.startsWith("/api/issues/")) {
       const issueId = decodeURIComponent(url.pathname.replace("/api/issues/", ""));
-      const issue = getIssueById(db, issueId);
+      const issue = await store.getIssueById(issueId);
 
       if (!issue) {
         notFound(res);
@@ -226,7 +153,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
   } finally {
-    db.close();
+    await store.close();
   }
 
   notFound(res);

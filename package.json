@@ -24,6 +24,7 @@
     "expo-notifications": "^55.0.19",
     "expo-status-bar": "~2.2.3",
     "i18next": "^26.0.4",
+    "pg": "^8.20.0",
     "react": "19.0.0",
     "react-i18next": "^17.0.2",
     "react-native": "0.79.2"

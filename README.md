@@ -126,6 +126,7 @@ StackPulse는 글로벌 개발자를 대상으로 하며, 다국어 UX를 제품
 - TypeScript
 - Node.js API 서버
 - SQLite (현재 개발/검증용 저장소)
+- Postgres 전환 준비 구조
 
 ## ▶️ 실행 방법
 
@@ -148,6 +149,13 @@ npm run dev
 ```bash
 npm start
 npm run server:start
+```
+
+운영형 백엔드 테스트를 준비하려면 아래 환경변수도 사용할 수 있습니다.
+
+```bash
+DATABASE_URL=postgresql://stackpulse:password@localhost:5432/stackpulse
+STACK_PULSE_DB_SSL=false
 ```
 
 필요하면 아래 명령도 사용할 수 있습니다.
@@ -208,7 +216,7 @@ App.tsx       앱 엔트리
 3. `content:build`
    `content/app-content.json` 생성
 4. `content:sync-db`
-   SQLite에 이슈/소스/클러스터 데이터 적재
+   현재 DB 저장소에 이슈/소스/클러스터 데이터 적재
 5. `server/index.mjs`
    DB 기준으로 스택별 최신 이슈를 API로 제공
 5. 앱
@@ -232,6 +240,7 @@ App.tsx       앱 엔트리
 ## ⚠️ 현재 한계
 
 - 서버 저장소는 아직 SQLite 기준이며 운영용 Postgres 전환이 남아 있습니다
+- 서버는 `DATABASE_URL`이 있으면 Postgres를, 없으면 SQLite를 사용합니다
 - 현재 refresh는 로컬 콘텐츠 파이프라인을 다시 실행하는 개발용 구조입니다
 - 공식 소스 수집은 가능하지만, 기본 검증은 fixture 기반으로 돌아갑니다
 - 앱스토어 배포 전 실제 privacy / terms / support URL을 운영 도메인으로 교체해야 합니다
