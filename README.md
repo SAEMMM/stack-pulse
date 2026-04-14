@@ -60,7 +60,7 @@ Next.js 16.2가 출시되었습니다
 
 ## 📱 현재 MVP 범위
 
-이 저장소에는 모바일 MVP 기준의 초기 앱 골격이 포함되어 있습니다.
+이 저장소에는 모바일 MVP 기준의 앱과 로컬 API 서버가 함께 포함되어 있습니다.
 
 - 온보딩
   - 역할 선택
@@ -71,14 +71,20 @@ Next.js 16.2가 출시되었습니다
   - 이슈 카드 기반 피드
   - 중요도 배지
   - 제목 + 핵심 한 줄 중심의 브리핑 카드
+  - pull-to-refresh
 - 이슈 상세
   - Interpretation 중심 상세 구조
   - 영향도 / 액션 / 소스 확인
 - 저장 기능
 - 알림 화면
 - 설정 화면
+- 로컬 API 서버
+  - `GET /api/feed?stacks=...`
+  - `GET /api/issues/:id`
+  - `POST /api/refresh`
 
-현재는 `원문 수집 데이터`와 `해석 데이터`를 분리한 MVP 콘텐츠 파이프라인 기반으로 핵심 UX를 검증할 수 있는 상태입니다.
+현재는 `앱 -> 로컬 API -> 콘텐츠 파이프라인 산출물` 구조로 핵심 UX를 검증할 수 있는 상태입니다.
+앱은 더 이상 번들 seed 데이터를 기본 이슈 목록으로 사용하지 않고, 서버에서 스택별 최신 이슈 목록을 조회합니다.
 
 ## 👥 타겟 사용자
 
@@ -106,11 +112,10 @@ StackPulse는 글로벌 개발자를 대상으로 하며, 다국어 UX를 제품
 
 - 원문은 항상 영어 유지
 - 요약 / 해석 / 액션은 사용자 언어로 제공
-- EN / KR 모드 지원
-- 혼합 모드 지원
-  - 영어 원문 + 한국어 요약/해석
-  - 영어 요약 + 한국어 해석
-  - 전체 영어
+- EN / KR UI 지원
+- 현재 MVP는 앱 언어 기준으로 콘텐츠 표시 언어를 결정
+  - 한국어 UI: 한국어 제목/요약/해석
+  - 영어 UI: 영어 제목/요약/해석
 
 핵심은 “번역”이 아니라 “영문 원문 기반의 신뢰 유지 + 현지어 기반의 판단 지원”입니다.
 
@@ -119,6 +124,7 @@ StackPulse는 글로벌 개발자를 대상으로 하며, 다국어 UX를 제품
 - Expo
 - React Native
 - TypeScript
+- Node.js 로컬 API 서버
 
 ## ▶️ 실행 방법
 
@@ -128,10 +134,19 @@ StackPulse는 글로벌 개발자를 대상으로 하며, 다국어 UX를 제품
 npm install
 ```
 
-### 2. 개발 서버 실행
+### 2. 개발 실행
+
+가장 권장되는 방식은 앱과 로컬 API 서버를 함께 켜는 것입니다.
+
+```bash
+npm run dev
+```
+
+개별 실행이 필요하면 아래처럼 나눠서 실행할 수 있습니다.
 
 ```bash
 npm start
+npm run server:start
 ```
 
 필요하면 아래 명령도 사용할 수 있습니다.
@@ -158,7 +173,7 @@ npm run content:build
 `content:fetch`는 공식 소스 fetcher를 우선 시도하고, 실패 시 fixture 스냅샷으로 fallback해  
 `content/fetched-sources.json`을 생성합니다.  
 `content:enrich`는 AI 생성 모드를 붙일 수 있는 enrichment 단계이며, 현재는 baseline fallback을 기본으로 사용합니다.  
-`content:build`는 이를 바탕으로 해석/액션 데이터를 결합해 앱이 사용하는 `data/generatedIssues.ts`를 생성합니다.
+`content:build`는 이를 바탕으로 해석/액션 데이터를 결합해 서버가 읽는 `content/app-content.json`과 개발용 산출물을 생성합니다.
 
 한 번에 순차 실행하려면 아래 명령을 사용할 수 있습니다.
 
@@ -175,20 +190,46 @@ content/      원문 수집 데이터, fixture, 해석 템플릿
 data/         앱 소비용 생성 데이터
 hooks/        앱 상태 훅
 lib/          포맷팅 및 공통 로직
+server/       로컬 API 서버
 scripts/      콘텐츠 수집 및 생성 스크립트
 types/        타입 정의
 App.tsx       앱 엔트리
 ```
 
+## 🔄 현재 데이터 흐름
+
+현재 개발 기준 데이터 흐름은 아래와 같습니다.
+
+1. `content:fetch`
+   공식 소스 fetch 시도, 실패 시 fixture fallback
+2. `content:enrich`
+   이슈별 summary / interpretation / action 생성
+3. `content:build`
+   `content/app-content.json` 생성
+4. `server/index.mjs`
+   스택별 최신 이슈를 API로 제공
+5. 앱
+   선택한 스택 기준으로 `/api/feed?stacks=...` 조회
+
+즉 현재 앱은 콘텐츠 자체를 로컬에 저장해두고 보여주지 않고, API 기준으로 최신 목록을 다시 조회합니다.
+로컬에 저장되는 것은 `read / saved / notified / onboarding 설정` 같은 사용자 상태뿐입니다.
+
+## ⚠️ 현재 한계
+
+- 서버는 아직 운영용 DB를 사용하지 않습니다
+- 현재 refresh는 로컬 콘텐츠 파이프라인을 다시 실행하는 개발용 구조입니다
+- 공식 소스 수집은 가능하지만, 기본 검증은 fixture 기반으로 돌아갑니다
+- 진짜 운영 단계에서는 DB와 백엔드 배치/크론이 필요합니다
+
 ## 🧭 다음 단계
 
 다음 구현 우선순위는 아래와 같습니다.
 
-1. 공식 블로그 / 릴리즈 노트 / GitHub Releases 기반 정규화 수집 확장
-2. AI 기반 Summary / Interpretation / Action 생성 연결
-3. 이슈 클러스터링 고도화
-4. 푸시 알림 실제 연동
-5. 웹 확장을 고려한 API/데이터 구조 정리
+1. 서버 저장소(DB) 추가
+2. 수집 파이프라인을 서버 쪽 배치/잡으로 이동
+3. 공식 소스 live fetch를 기본 경로로 전환
+4. AI 기반 Summary / Interpretation / Action 생성 품질 고도화
+5. 사용자별 상태를 서버와 동기화
 
 ## 📌 제품 원칙
 
