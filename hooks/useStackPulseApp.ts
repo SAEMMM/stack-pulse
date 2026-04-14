@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { createEmptyContentBundle, DEFAULT_STACK_OPTIONS, fetchRemoteContentBundle } from "../lib/content";
+import {
+  createEmptyContentBundle,
+  DEFAULT_STACK_OPTIONS,
+  fetchRemoteContentBundle,
+  triggerRemoteContentRefresh,
+} from "../lib/content";
 import { AppTab, ContentBundle, ContentSource, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
 import { getNotificationPermissionState, scheduleIssueNotification } from "../lib/notifications";
@@ -267,6 +272,7 @@ export function useStackPulseApp() {
     setIsRefreshingContent(true);
 
     try {
+      await triggerRemoteContentRefresh();
       const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
 
       if (remoteBundle) {

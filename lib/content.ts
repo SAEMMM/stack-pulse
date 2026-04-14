@@ -52,6 +52,30 @@ function getApiBaseUrl() {
   return extra || DEFAULT_API_BASE_URL;
 }
 
+export async function triggerRemoteContentRefresh() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REMOTE_FETCH_TIMEOUT_MS);
+  const url = new URL("/api/refresh", getApiBaseUrl());
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+      signal: controller.signal,
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export async function fetchRemoteContentBundle(stacks: string[]) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REMOTE_FETCH_TIMEOUT_MS);
