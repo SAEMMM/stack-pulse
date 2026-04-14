@@ -13,6 +13,9 @@
       "**/*"
     ],
     "ios": {
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "StackPulse uses notifications to alert you to important developer issues."
+      },
       "supportsTablet": true
     },
     "android": {

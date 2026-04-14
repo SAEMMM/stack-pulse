@@ -21,6 +21,7 @@ export type UserPreferences = {
   languageMode: LanguageMode;
   pushLevel: "important_only" | "important_and_major";
   hideReadIssues: boolean;
+  notificationPermission?: "granted" | "denied" | "undetermined";
 };
 
 export type Issue = {

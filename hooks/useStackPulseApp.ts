@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { generatedIssues } from "../lib/issues";
 import { AppTab, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
+import { getNotificationPermissionState } from "../lib/notifications";
 import {
   loadPersistedAppState,
   persistIsOnboarded,
@@ -46,11 +47,20 @@ export function useStackPulseApp() {
     async function hydrate() {
       try {
         const persisted = await loadPersistedAppState();
+        const notificationPermission = await getNotificationPermissionState();
 
         if (!isMounted) return;
 
         if (persisted.preferences) {
-          setPreferences(persisted.preferences);
+          setPreferences({
+            ...persisted.preferences,
+            notificationPermission,
+          });
+        } else {
+          setPreferences((prev) => ({
+            ...prev,
+            notificationPermission,
+          }));
         }
 
         if (persisted.issueStates) {

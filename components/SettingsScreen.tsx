@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
 import { availableStacks } from "../lib/issues";
+import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
 import { UserPreferences } from "../types/app";
 
 export function SettingsScreen({
@@ -13,6 +14,19 @@ export function SettingsScreen({
   onChange: (next: UserPreferences) => void;
 }) {
   const { t } = useTranslation();
+
+  async function enableNotifications() {
+    const permission = await requestNotificationPermission();
+    onChange({
+      ...preferences,
+      notificationPermission: permission,
+    });
+  }
+
+  async function sendTestNotification() {
+    await scheduleTestNotification();
+  }
+
   function toggleStack(stack: string) {
     const stacks = preferences.stacks.includes(stack)
       ? preferences.stacks.filter((item) => item !== stack)
@@ -106,6 +120,27 @@ export function SettingsScreen({
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("settings.notifications")}</Text>
+        <Text style={styles.optionBody}>
+          {preferences.notificationPermission === "granted"
+            ? t("settings.notificationGranted")
+            : preferences.notificationPermission === "denied"
+              ? t("settings.notificationDenied")
+              : t("settings.notificationUndetermined")}
+        </Text>
+        {preferences.notificationPermission !== "granted" && (
+          <Pressable style={styles.actionButton} onPress={enableNotifications}>
+            <Text style={styles.actionButtonText}>{t("settings.requestPermission")}</Text>
+          </Pressable>
+        )}
+        {preferences.notificationPermission === "granted" && (
+          <Pressable style={styles.actionButton} onPress={sendTestNotification}>
+            <Text style={styles.actionButtonText}>{t("settings.sendTest")}</Text>
+          </Pressable>
+        )}
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("settings.feedBehavior")}</Text>
         <Pressable
           style={[styles.option, preferences.hideReadIssues && styles.optionSelected]}
@@ -180,6 +215,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: spacing.xs,
+  },
+  actionButton: {
+    alignItems: "center",
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accentStrong,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginTop: spacing.sm,
+    paddingVertical: 12,
+  },
+  actionButtonText: {
+    color: colors.accentStrong,
+    fontSize: 14,
+    fontWeight: "800",
   },
   chips: {
     flexDirection: "row",
