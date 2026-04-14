@@ -1,3 +1,4 @@
+import "dotenv/config";
 import type { ExpoConfig } from "expo/config";
 
 const repoBaseUrl = "https://github.com/SAEMMM/stack-pulse/blob/main";
