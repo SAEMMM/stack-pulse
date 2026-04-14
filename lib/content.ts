@@ -1,4 +1,5 @@
 import { ContentBundle } from "../types/app";
+import { NativeModules } from "react-native";
 
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:4318";
 const REMOTE_FETCH_TIMEOUT_MS = 5000;
@@ -49,7 +50,28 @@ function isValidBundle(value: unknown): value is ContentBundle {
 function getApiBaseUrl() {
   const extra =
     typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
-  return extra || DEFAULT_API_BASE_URL;
+
+  if (extra) {
+    return extra;
+  }
+
+  const scriptURL =
+    NativeModules?.SourceCode?.scriptURL ||
+    NativeModules?.SourceCode?.bundleURL ||
+    "";
+
+  if (scriptURL) {
+    try {
+      const parsed = new URL(scriptURL);
+      if (parsed.hostname) {
+        return `http://${parsed.hostname}:4318`;
+      }
+    } catch {
+      return DEFAULT_API_BASE_URL;
+    }
+  }
+
+  return DEFAULT_API_BASE_URL;
 }
 
 export async function triggerRemoteContentRefresh() {

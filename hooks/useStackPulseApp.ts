@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createEmptyContentBundle,
   DEFAULT_STACK_OPTIONS,
@@ -54,6 +54,7 @@ function reconcileIssueStates(
 }
 
 export function useStackPulseApp() {
+  const requestSequenceRef = useRef(0);
   const [isReady, setIsReady] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
@@ -66,6 +67,18 @@ export function useStackPulseApp() {
   );
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
+
+  function applyRemoteBundle(remoteBundle: ContentBundle) {
+    setContentBundle(remoteBundle);
+    setContentSource("remote");
+    setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
+    setLastRefreshSucceeded(true);
+
+    setSelectedIssue((prev) => {
+      if (!prev) return null;
+      return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
+    });
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -112,6 +125,7 @@ export function useStackPulseApp() {
     if (!isReady) return;
 
     let isMounted = true;
+    const requestId = ++requestSequenceRef.current;
 
     async function refreshInitialContent() {
       setIsRefreshingContent(true);
@@ -119,26 +133,18 @@ export function useStackPulseApp() {
       try {
         const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
 
-        if (!remoteBundle || !isMounted) {
-          if (isMounted) {
-            setContentBundle(emptyContentBundle);
-            setContentSource("empty");
-            setLastRefreshSucceeded(false);
-          }
+        if (!isMounted || requestSequenceRef.current !== requestId) {
           return;
         }
 
-        setContentBundle(remoteBundle);
-        setContentSource("remote");
-        setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-        setLastRefreshSucceeded(true);
+        if (!remoteBundle) {
+          setLastRefreshSucceeded(false);
+          return;
+        }
 
-        setSelectedIssue((prev) => {
-          if (!prev) return null;
-          return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
-        });
+        applyRemoteBundle(remoteBundle);
       } finally {
-        if (isMounted) {
+        if (isMounted && requestSequenceRef.current === requestId) {
           setIsRefreshingContent(false);
         }
       }
@@ -269,32 +275,28 @@ export function useStackPulseApp() {
   }
 
   async function refreshContent() {
+    const requestId = ++requestSequenceRef.current;
     setIsRefreshingContent(true);
 
     try {
       await triggerRemoteContentRefresh();
       const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
 
-      if (remoteBundle) {
-        setContentBundle(remoteBundle);
-        setContentSource("remote");
-        setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
-        setLastRefreshSucceeded(true);
+      if (requestSequenceRef.current !== requestId) {
+        return false;
+      }
 
-        setSelectedIssue((prev) => {
-          if (!prev) return null;
-          return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
-        });
+      if (remoteBundle) {
+        applyRemoteBundle(remoteBundle);
       } else {
-        setContentBundle(emptyContentBundle);
-        setContentSource("empty");
-        setSelectedIssue(null);
         setLastRefreshSucceeded(false);
       }
 
       return Boolean(remoteBundle);
     } finally {
-      setIsRefreshingContent(false);
+      if (requestSequenceRef.current === requestId) {
+        setIsRefreshingContent(false);
+      }
     }
   }
 

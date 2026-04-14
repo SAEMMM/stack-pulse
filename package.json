@@ -4,6 +4,7 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "dev": "node scripts/dev.mjs",
     "start": "expo start",
     "ios": "expo start --ios",
     "android": "expo start --android",
