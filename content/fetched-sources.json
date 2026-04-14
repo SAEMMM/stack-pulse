@@ -15,7 +15,7 @@
     "originalExcerpt": "Next.js 16.2 is available with performance and stability improvements for modern React apps.",
     "host": "nextjs.org",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:23:57.865Z"
+    "collectedAt": "2026-04-14T01:26:07.809Z"
   },
   {
     "sourceId": "vercel-blog-post",
@@ -34,7 +34,7 @@
     "originalExcerpt": "Vercel highlights App Router performance wins and improved Turbopack stability in the latest release.",
     "host": "vercel.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:23:57.865Z"
+    "collectedAt": "2026-04-14T01:26:07.810Z"
   },
   {
     "sourceId": "security-advisory",
@@ -52,7 +52,7 @@
     "originalExcerpt": "A newly disclosed advisory points to potential supply-chain risk in a package commonly used near TypeScript build workflows.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:23:57.865Z"
+    "collectedAt": "2026-04-14T01:26:07.810Z"
   },
   {
     "sourceId": "react-rfc",
@@ -69,6 +69,6 @@
     "originalExcerpt": "The updated RFC clarifies stricter expectations around compiler escape hatches and coding patterns.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T01:23:57.865Z"
+    "collectedAt": "2026-04-14T01:26:07.810Z"
   }
 ]

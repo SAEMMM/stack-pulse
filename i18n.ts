@@ -61,6 +61,10 @@ const resources = {
       detail: {
         back: "Back to feed",
         originalSourceTitle: "Original source title: {{title}}",
+        cluster: "Issue cluster",
+        clusterSources: "{{count}} sources bundled",
+        clusterOfficial: "{{count}} official",
+        clusterUpdated: "Updated {{date}}",
         summary: "Summary",
         interpretation: "Interpretation",
         impact: "Impact",
@@ -165,6 +169,10 @@ const resources = {
       detail: {
         back: "피드로 돌아가기",
         originalSourceTitle: "원문 제목: {{title}}",
+        cluster: "이슈 클러스터",
+        clusterSources: "묶인 출처 {{count}}개",
+        clusterOfficial: "공식 출처 {{count}}개",
+        clusterUpdated: "업데이트 {{date}}",
         summary: "요약",
         interpretation: "해석",
         impact: "영향도",

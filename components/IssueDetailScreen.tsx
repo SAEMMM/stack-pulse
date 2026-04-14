@@ -69,6 +69,19 @@ export function IssueDetailScreen({
       <Text style={styles.originalTitle}>{displayTitle}</Text>
       <Text style={styles.originalMeta}>{t("detail.originalSourceTitle", { title: issue.originalTitle })}</Text>
 
+      <Section title={t("detail.cluster")}>
+        <View style={styles.clusterRow}>
+          <Text style={styles.clusterMeta}>{t("detail.clusterSources", { count: issue.cluster.sourceCount })}</Text>
+          <Text style={styles.clusterMeta}>{t("detail.clusterOfficial", { count: issue.cluster.officialSourceCount })}</Text>
+        </View>
+        <Text style={styles.clusterTypes}>{issue.cluster.sourceTypes.join(" • ")}</Text>
+        <Text style={styles.clusterDate}>
+          {t("detail.clusterUpdated", {
+            date: new Date(issue.cluster.lastUpdatedAt).toLocaleDateString(),
+          })}
+        </Text>
+      </Section>
+
       <Section title={`${t("detail.summary")} · ${summaryLanguage}`}>
         <Text style={styles.body}>{summary}</Text>
       </Section>
@@ -220,6 +233,28 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginBottom: spacing.sm,
     textTransform: "uppercase",
+  },
+  clusterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  clusterMeta: {
+    color: colors.accentStrong,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  clusterTypes: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 21,
+  },
+  clusterDate: {
+    color: colors.subtext,
+    fontSize: 12,
+    marginTop: spacing.xs,
   },
   impactHeader: {
     alignItems: "center",

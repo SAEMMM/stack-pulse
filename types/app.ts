@@ -27,6 +27,13 @@ export type Issue = {
   id: string;
   severity: Severity;
   tags: string[];
+  cluster: {
+    sourceTypes: string[];
+    sourceCount: number;
+    officialSourceCount: number;
+    firstSeenAt: string;
+    lastUpdatedAt: string;
+  };
   originalTitle: string;
   title: {
     en: string;

@@ -36,6 +36,7 @@ function dedupeSources(items) {
 
 function mergeIssue(group) {
   const latest = [...group].sort(sortByDateDesc)[0];
+  const oldest = [...group].sort(sortByDateDesc).at(-1);
   const enrichment = enrichments[latest.issueKey];
 
   if (!enrichment) {
@@ -49,6 +50,13 @@ function mergeIssue(group) {
     id: latest.issueKey,
     severity: latest.severity,
     tags: unique(group.flatMap((item) => item.tags)),
+    cluster: {
+      sourceTypes: unique(group.map((item) => item.sourceType)).sort((a, b) => a.localeCompare(b)),
+      sourceCount: dedupeSources(group).length,
+      officialSourceCount: dedupeSources(group).filter((item) => item.isOfficial ?? false).length,
+      firstSeenAt: oldest?.publishedAt ?? latest.publishedAt,
+      lastUpdatedAt: latest.publishedAt,
+    },
     originalTitle: latest.originalTitle,
     title: enrichment.title,
     summary: enrichment.summary,

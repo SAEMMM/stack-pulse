@@ -8,6 +8,15 @@ export const generatedIssues: Issue[] = [
       "TypeScript",
       "Node.js"
     ],
+    "cluster": {
+      "sourceTypes": [
+        "security"
+      ],
+      "sourceCount": 1,
+      "officialSourceCount": 1,
+      "firstSeenAt": "2026-04-13T02:30:00Z",
+      "lastUpdatedAt": "2026-04-13T02:30:00Z"
+    },
     "originalTitle": "TypeScript ecosystem package disclosed a supply-chain vulnerability",
     "title": {
       "en": "Supply-chain risk hits a TypeScript-adjacent package",
@@ -71,6 +80,16 @@ export const generatedIssues: Issue[] = [
       "React",
       "Vercel"
     ],
+    "cluster": {
+      "sourceTypes": [
+        "blog",
+        "release_note"
+      ],
+      "sourceCount": 2,
+      "officialSourceCount": 2,
+      "firstSeenAt": "2026-04-12T08:00:00Z",
+      "lastUpdatedAt": "2026-04-12T10:00:00Z"
+    },
     "originalTitle": "Next.js 16.2 released",
     "title": {
       "en": "Next.js 16.2 sharpens App Router performance",
@@ -141,6 +160,15 @@ export const generatedIssues: Issue[] = [
     "tags": [
       "React"
     ],
+    "cluster": {
+      "sourceTypes": [
+        "rfc"
+      ],
+      "sourceCount": 1,
+      "officialSourceCount": 1,
+      "firstSeenAt": "2026-04-11T11:15:00Z",
+      "lastUpdatedAt": "2026-04-11T11:15:00Z"
+    },
     "originalTitle": "React Compiler RFC updated with stricter escape hatches",
     "title": {
       "en": "React Compiler tightens escape hatch expectations",
