@@ -3,12 +3,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
-import { availableStacks } from "../lib/issues";
 import { UiLanguage, UserPreferences, UserRole } from "../types/app";
 
 export function OnboardingScreen({
+  availableStacks,
   onComplete,
 }: {
+  availableStacks: string[];
   onComplete: (value: UserPreferences) => void;
 }) {
   const { t } = useTranslation();

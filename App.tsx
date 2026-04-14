@@ -45,7 +45,7 @@ export default function App() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="dark-content" />
-        <OnboardingScreen onComplete={app.completeOnboarding} />
+        <OnboardingScreen availableStacks={app.availableStacks} onComplete={app.completeOnboarding} />
       </SafeAreaView>
     );
   }
@@ -107,7 +107,15 @@ export default function App() {
         )}
 
         {app.currentTab === "settings" && (
-          <SettingsScreen preferences={app.preferences} onChange={app.setPreferences} />
+          <SettingsScreen
+            availableStacks={app.availableStacks}
+            contentMeta={app.contentMeta}
+            contentSource={app.contentSource}
+            isRefreshingContent={app.isRefreshingContent}
+            preferences={app.preferences}
+            onChange={app.setPreferences}
+            onRefreshContent={app.refreshContent}
+          />
         )}
 
         <TabBar

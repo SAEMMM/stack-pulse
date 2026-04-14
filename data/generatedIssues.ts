@@ -234,7 +234,7 @@ export const availableStacks = [
 ];
 
 export const generatedContentMeta: ContentMeta = {
-  "generatedAt": "2026-04-14T01:32:18.012Z",
+  "generatedAt": "2026-04-14T01:40:16.629Z",
   "issueCount": 3,
   "sourceCount": 4,
   "officialSourceCount": 4,

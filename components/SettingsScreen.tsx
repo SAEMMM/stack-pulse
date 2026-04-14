@@ -2,16 +2,25 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
 import i18n from "../i18n";
-import { availableStacks, generatedContentMeta } from "../lib/issues";
 import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
-import { UserPreferences } from "../types/app";
+import { ContentMeta, ContentSource, UserPreferences } from "../types/app";
 
 export function SettingsScreen({
+  availableStacks,
+  contentMeta,
+  contentSource,
+  isRefreshingContent,
   preferences,
   onChange,
+  onRefreshContent,
 }: {
+  availableStacks: string[];
+  contentMeta: ContentMeta;
+  contentSource: ContentSource;
+  isRefreshingContent: boolean;
   preferences: UserPreferences;
   onChange: (next: UserPreferences) => void;
+  onRefreshContent: () => Promise<boolean>;
 }) {
   const { t } = useTranslation();
 
@@ -25,6 +34,10 @@ export function SettingsScreen({
 
   async function sendTestNotification() {
     await scheduleTestNotification();
+  }
+
+  async function refreshContent() {
+    await onRefreshContent();
   }
 
   function toggleStack(stack: string) {
@@ -44,18 +57,28 @@ export function SettingsScreen({
         <Text style={styles.sectionTitle}>{t("settings.content")}</Text>
         <Text style={styles.optionBody}>
           {t("settings.contentUpdated", {
-            date: new Date(generatedContentMeta.lastUpdatedAt).toLocaleDateString(),
+            date: new Date(contentMeta.lastUpdatedAt).toLocaleDateString(),
           })}
         </Text>
-        <Text style={styles.optionBody}>{t("settings.contentIssues", { count: generatedContentMeta.issueCount })}</Text>
-        <Text style={styles.optionBody}>{t("settings.contentSources", { count: generatedContentMeta.sourceCount })}</Text>
-        <Text style={styles.optionBody}>{t("settings.contentFallback", { count: generatedContentMeta.fallbackSourceCount })}</Text>
+        <Text style={styles.optionBody}>{t("settings.contentIssues", { count: contentMeta.issueCount })}</Text>
+        <Text style={styles.optionBody}>{t("settings.contentSources", { count: contentMeta.sourceCount })}</Text>
+        <Text style={styles.optionBody}>{t("settings.contentFallback", { count: contentMeta.fallbackSourceCount })}</Text>
         <Text style={styles.optionBody}>
           {t("settings.contentLive", {
-            mode: generatedContentMeta.fetchMode,
-            enrichment: generatedContentMeta.enrichmentMode,
+            mode: contentMeta.fetchMode,
+            enrichment: contentMeta.enrichmentMode,
           })}
         </Text>
+        <Text style={styles.optionBody}>{t(`settings.contentSource.${contentSource}`)}</Text>
+        <Pressable
+          style={[styles.actionButton, isRefreshingContent && styles.actionButtonDisabled]}
+          disabled={isRefreshingContent}
+          onPress={refreshContent}
+        >
+          <Text style={styles.actionButtonText}>
+            {isRefreshingContent ? t("settings.refreshingContent") : t("settings.refreshContent")}
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.section}>
@@ -247,6 +270,9 @@ const styles = StyleSheet.create({
     color: colors.accentStrong,
     fontSize: 14,
     fontWeight: "800",
+  },
+  actionButtonDisabled: {
+    opacity: 0.6,
   },
   chips: {
     flexDirection: "row",

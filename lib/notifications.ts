@@ -1,4 +1,6 @@
 import * as Notifications from "expo-notifications";
+import { Issue, LanguageMode } from "../types/app";
+import { getDisplayTitle, getPrimaryKeyLine } from "./format";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,6 +30,20 @@ export async function scheduleTestNotification() {
       body: "Important developer issue ready for review.",
       data: {
         type: "test-alert",
+      },
+    },
+    trigger: null,
+  });
+}
+
+export async function scheduleIssueNotification(issue: Issue, mode: LanguageMode) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: getDisplayTitle(issue, mode),
+      body: getPrimaryKeyLine(issue, mode),
+      data: {
+        type: "issue-alert",
+        issueId: issue.id,
       },
     },
     trigger: null,

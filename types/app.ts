@@ -90,3 +90,11 @@ export type ContentMeta = {
   fetchMode: string;
   enrichmentMode: string;
 };
+
+export type ContentBundle = {
+  issues: Issue[];
+  availableStacks: string[];
+  contentMeta: ContentMeta;
+};
+
+export type ContentSource = "bundled" | "cached" | "remote";

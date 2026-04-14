@@ -28,27 +28,33 @@ export function NotificationsScreen({
           ? t("notifications.importantOnly")
           : t("notifications.importantMajor")}
       </Text>
-      {issues.map((issue) => {
-        const severityColors = getSeverityColors(issue);
-        return (
-          <Pressable key={issue.id} style={styles.item} onPress={() => onOpen(issue)}>
-            <View style={styles.itemTop}>
-              <Badge
-                label={getSeverityLabel(issue)}
-                backgroundColor={severityColors.bg}
-                color={severityColors.text}
-              />
-              <Text style={styles.timestamp}>
-                {states[issue.id]?.isRead ? t("notifications.read") : t("notifications.unread")}{" "}
-                ·{" "}
-                {new Date(issue.publishedAt).toLocaleDateString()}
-              </Text>
-            </View>
-            <Text style={styles.original}>{getDisplayTitle(issue, mode)}</Text>
-            <Text style={styles.summary}>{english ? issue.summary.en : issue.summary.ko}</Text>
-          </Pressable>
-        );
-      })}
+      {issues.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>{t("notifications.empty")}</Text>
+        </View>
+      ) : (
+        issues.map((issue) => {
+          const severityColors = getSeverityColors(issue);
+          return (
+            <Pressable key={issue.id} style={styles.item} onPress={() => onOpen(issue)}>
+              <View style={styles.itemTop}>
+                <Badge
+                  label={getSeverityLabel(issue)}
+                  backgroundColor={severityColors.bg}
+                  color={severityColors.text}
+                />
+                <Text style={styles.timestamp}>
+                  {states[issue.id]?.isRead ? t("notifications.read") : t("notifications.unread")}{" "}
+                  ·{" "}
+                  {new Date(issue.publishedAt).toLocaleDateString()}
+                </Text>
+              </View>
+              <Text style={styles.original}>{getDisplayTitle(issue, mode)}</Text>
+              <Text style={styles.summary}>{english ? issue.summary.en : issue.summary.ko}</Text>
+            </Pressable>
+          );
+        })
+      )}
     </ScrollView>
   );
 }
@@ -73,6 +79,18 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: spacing.lg,
     marginTop: spacing.sm,
+  },
+  emptyState: {
+    backgroundColor: colors.panel,
+    borderColor: colors.border,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: spacing.lg,
+  },
+  emptyText: {
+    color: colors.subtext,
+    fontSize: 15,
+    lineHeight: 22,
   },
   item: {
     backgroundColor: colors.panel,

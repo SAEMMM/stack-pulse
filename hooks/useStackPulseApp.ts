@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { generatedContentMeta, generatedIssues } from "../lib/issues";
-import { AppTab, Issue, IssueState, UserPreferences } from "../types/app";
+import { fetchRemoteContentBundle, getLocalContentBundle } from "../lib/content";
+import { AppTab, ContentBundle, ContentSource, Issue, IssueState, UserPreferences } from "../types/app";
 import { sortIssues } from "../lib/format";
-import { getNotificationPermissionState } from "../lib/notifications";
+import { getNotificationPermissionState, scheduleIssueNotification } from "../lib/notifications";
 import {
   loadPersistedAppState,
+  persistContentBundle,
   persistIsOnboarded,
   persistIssueStates,
   persistPreferences,
@@ -19,17 +20,32 @@ const defaultPreferences: UserPreferences = {
   hideReadIssues: false,
 };
 
-function createInitialState(): Record<string, IssueState> {
+const localContentBundle = getLocalContentBundle();
+
+function createStateForIssue(issue: Issue): IssueState {
+  return {
+    issueId: issue.id,
+    isRead: false,
+    isSaved: issue.id === "typescript-vuln",
+    isNotified: false,
+  };
+}
+
+function createInitialState(issues: Issue[]): Record<string, IssueState> {
   return Object.fromEntries(
-    generatedIssues.map((issue) => [
+    issues.map((issue) => [
       issue.id,
-      {
-        issueId: issue.id,
-        isRead: false,
-        isSaved: issue.id === "typescript-vuln",
-        isNotified: issue.severity !== "major",
-      },
+      createStateForIssue(issue),
     ]),
+  );
+}
+
+function reconcileIssueStates(
+  issues: Issue[],
+  existing?: Record<string, IssueState> | null,
+): Record<string, IssueState> {
+  return Object.fromEntries(
+    issues.map((issue) => [issue.id, existing?.[issue.id] ?? createStateForIssue(issue)]),
   );
 }
 
@@ -37,7 +53,12 @@ export function useStackPulseApp() {
   const [isReady, setIsReady] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
-  const [states, setStates] = useState<Record<string, IssueState>>(createInitialState);
+  const [contentBundle, setContentBundle] = useState<ContentBundle>(localContentBundle);
+  const [contentSource, setContentSource] = useState<ContentSource>("bundled");
+  const [isRefreshingContent, setIsRefreshingContent] = useState(false);
+  const [states, setStates] = useState<Record<string, IssueState>>(() =>
+    createInitialState(localContentBundle.issues),
+  );
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
 
@@ -51,6 +72,13 @@ export function useStackPulseApp() {
 
         if (!isMounted) return;
 
+        const initialBundle = persisted.contentBundle ?? localContentBundle;
+
+        if (persisted.contentBundle) {
+          setContentBundle(persisted.contentBundle);
+          setContentSource("cached");
+        }
+
         if (persisted.preferences) {
           setPreferences({
             ...persisted.preferences,
@@ -63,9 +91,7 @@ export function useStackPulseApp() {
           }));
         }
 
-        if (persisted.issueStates) {
-          setStates((prev) => ({ ...prev, ...persisted.issueStates }));
-        }
+        setStates(reconcileIssueStates(initialBundle.issues, persisted.issueStates));
 
         if (persisted.isOnboarded) {
           setIsOnboarded(true);
@@ -86,6 +112,42 @@ export function useStackPulseApp() {
 
   useEffect(() => {
     if (!isReady) return;
+
+    let isMounted = true;
+
+    async function refreshInitialContent() {
+      setIsRefreshingContent(true);
+      const remoteBundle = await fetchRemoteContentBundle();
+
+      if (!remoteBundle || !isMounted) {
+        setIsRefreshingContent(false);
+        return;
+      }
+
+      setContentBundle(remoteBundle);
+      setContentSource("remote");
+      setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
+      await persistContentBundle(remoteBundle);
+
+      setSelectedIssue((prev) => {
+        if (!prev) return null;
+        return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
+      });
+
+      if (isMounted) {
+        setIsRefreshingContent(false);
+      }
+    }
+
+    refreshInitialContent();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isReady]);
+
+  useEffect(() => {
+    if (!isReady) return;
     persistPreferences(preferences);
   }, [isReady, preferences]);
 
@@ -100,8 +162,8 @@ export function useStackPulseApp() {
   }, [isOnboarded, isReady]);
 
   const sortedIssues = useMemo(
-    () => sortIssues(generatedIssues, states, preferences.stacks),
-    [preferences.stacks, states],
+    () => sortIssues(contentBundle.issues, states, preferences.stacks),
+    [contentBundle.issues, preferences.stacks, states],
   );
 
   const visibleIssues = useMemo(
@@ -123,6 +185,56 @@ export function useStackPulseApp() {
     () => visibleIssues.filter((issue) => states[issue.id]?.isNotified),
     [visibleIssues, states],
   );
+
+  useEffect(() => {
+    if (!isReady || !isOnboarded) return;
+    if (preferences.notificationPermission !== "granted") return;
+
+    const candidate = visibleIssues.find((issue) => {
+      const alreadyNotified = states[issue.id]?.isNotified;
+      if (alreadyNotified) return false;
+
+      if (preferences.pushLevel === "important_only") {
+        return issue.severity === "security" || issue.severity === "breaking";
+      }
+
+      return true;
+    });
+
+    if (!candidate) return;
+
+    const notificationIssue = candidate;
+
+    let cancelled = false;
+
+    async function notify() {
+      await scheduleIssueNotification(notificationIssue, preferences.languageMode);
+
+      if (cancelled) return;
+
+      setStates((prev) => ({
+        ...prev,
+        [notificationIssue.id]: {
+          ...prev[notificationIssue.id],
+          isNotified: true,
+        },
+      }));
+    }
+
+    notify();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isOnboarded,
+    isReady,
+    preferences.languageMode,
+    preferences.notificationPermission,
+    preferences.pushLevel,
+    states,
+    visibleIssues,
+  ]);
 
   function completeOnboarding(next: UserPreferences) {
     setPreferences(next);
@@ -151,13 +263,37 @@ export function useStackPulseApp() {
     }));
   }
 
+  async function refreshContent() {
+    setIsRefreshingContent(true);
+    const remoteBundle = await fetchRemoteContentBundle();
+
+    if (remoteBundle) {
+      setContentBundle(remoteBundle);
+      setContentSource("remote");
+      setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
+      await persistContentBundle(remoteBundle);
+
+      setSelectedIssue((prev) => {
+        if (!prev) return null;
+        return remoteBundle.issues.find((issue) => issue.id === prev.id) ?? null;
+      });
+    }
+
+    setIsRefreshingContent(false);
+    return Boolean(remoteBundle);
+  }
+
   return {
-    contentMeta: generatedContentMeta,
+    availableStacks: contentBundle.availableStacks,
+    contentMeta: contentBundle.contentMeta,
+    contentSource,
     currentTab,
     isReady,
     isOnboarded,
+    isRefreshingContent,
     notifications,
     preferences,
+    refreshContent,
     savedIssues,
     selectedIssue,
     setCurrentTab,

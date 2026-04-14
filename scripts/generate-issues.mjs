@@ -6,6 +6,7 @@ const fetchedSourcesPath = path.join(projectRoot, "content", "fetched-sources.js
 const generatedEnrichmentsPath = path.join(projectRoot, "content", "generated-enrichments.json");
 const baselineEnrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
 const outputPath = path.join(projectRoot, "data", "generatedIssues.ts");
+const jsonOutputPath = path.join(projectRoot, "content", "app-content.json");
 const fetchMode = process.env.STACK_PULSE_FETCH_MODE ?? "fixture";
 const enrichmentMode = process.env.STACK_PULSE_ENRICHMENT_MODE ?? "baseline";
 
@@ -114,6 +115,13 @@ export const availableStacks = ${JSON.stringify(availableStacks, null, 2)};
 export const generatedContentMeta: ContentMeta = ${JSON.stringify(contentMeta, null, 2)};
 `;
 
+const bundle = {
+  issues,
+  availableStacks,
+  contentMeta,
+};
+
 fs.writeFileSync(outputPath, fileContents);
+fs.writeFileSync(jsonOutputPath, JSON.stringify(bundle, null, 2));
 
 console.log(`Generated ${issues.length} issues into data/generatedIssues.ts`);
