@@ -12,6 +12,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "extra": {
+      "stackPulse": {
+        "requiresHostedApi": true
+      }
+    },
     "ios": {
       "infoPlist": {
         "NSUserNotificationUsageDescription": "StackPulse uses notifications to alert you to important developer issues."

@@ -105,6 +105,8 @@ const resources = {
         contentSources: "{{count}} sources tracked",
         contentFallback: "{{count}} fallback sources",
         contentLive: "Fetch {{mode}} · Enrichment {{enrichment}}",
+        apiEndpoint: "API endpoint: {{endpoint}}",
+        apiEndpointMissing: "not configured",
         contentSource: {
           empty: "No synced content is available yet.",
           remote: "Using the latest remote content.",
@@ -237,6 +239,8 @@ const resources = {
         contentSources: "추적 중인 출처 {{count}}개",
         contentFallback: "fallback 출처 {{count}}개",
         contentLive: "수집 {{mode}} · 생성 {{enrichment}}",
+        apiEndpoint: "API 엔드포인트: {{endpoint}}",
+        apiEndpointMissing: "설정되지 않음",
         contentSource: {
           empty: "아직 동기화된 콘텐츠가 없습니다.",
           remote: "최신 원격 콘텐츠를 사용 중입니다.",

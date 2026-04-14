@@ -14,6 +14,7 @@
     "content:enrich": "node scripts/generate-enrichments.mjs",
     "typecheck": "tsc --noEmit",
     "content:build": "node scripts/generate-issues.mjs",
+    "content:sync-db": "node scripts/sync-db.mjs",
     "content:refresh": "node scripts/refresh-content.mjs"
   },
   "dependencies": {

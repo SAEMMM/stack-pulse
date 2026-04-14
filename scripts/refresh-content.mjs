@@ -14,3 +14,4 @@ function run(command, args) {
 run("npm", ["run", "content:fetch"]);
 run("npm", ["run", "content:enrich"]);
 run("npm", ["run", "content:build"]);
+run("npm", ["run", "content:sync-db"]);

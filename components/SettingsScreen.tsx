@@ -8,6 +8,7 @@ import { ContentMeta, ContentSource, UserPreferences } from "../types/app";
 
 export function SettingsScreen({
   availableStacks,
+  apiBaseUrl,
   contentMeta,
   contentSource,
   isRefreshingContent,
@@ -16,6 +17,7 @@ export function SettingsScreen({
   onRefreshContent,
 }: {
   availableStacks: string[];
+  apiBaseUrl: string | null;
   contentMeta: ContentMeta;
   contentSource: ContentSource;
   isRefreshingContent: boolean;
@@ -71,6 +73,11 @@ export function SettingsScreen({
           })}
         </Text>
         <Text style={styles.optionBody}>{t(`settings.contentSource.${contentSource}`)}</Text>
+        <Text style={styles.optionBody}>
+          {t("settings.apiEndpoint", {
+            endpoint: apiBaseUrl ?? t("settings.apiEndpointMissing"),
+          })}
+        </Text>
         <Pressable
           style={[styles.actionButton, isRefreshingContent && styles.actionButtonDisabled]}
           disabled={isRefreshingContent}

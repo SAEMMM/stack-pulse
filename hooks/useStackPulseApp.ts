@@ -3,6 +3,7 @@ import {
   createEmptyContentBundle,
   DEFAULT_STACK_OPTIONS,
   fetchRemoteContentBundle,
+  getConfiguredApiBaseUrl,
   triggerRemoteContentRefresh,
 } from "../lib/content";
 import { AppTab, ContentBundle, ContentSource, Issue, IssueState, UserPreferences } from "../types/app";
@@ -305,6 +306,7 @@ export function useStackPulseApp() {
       contentBundle.availableStacks.length > 0
         ? contentBundle.availableStacks
         : [...DEFAULT_STACK_OPTIONS],
+    apiBaseUrl: getConfiguredApiBaseUrl(),
     contentMeta: contentBundle.contentMeta,
     contentSource,
     currentTab,

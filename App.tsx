@@ -114,6 +114,7 @@ export default function App() {
         {app.currentTab === "settings" && (
           <SettingsScreen
             availableStacks={app.availableStacks}
+            apiBaseUrl={app.apiBaseUrl}
             contentMeta={app.contentMeta}
             contentSource={app.contentSource}
             isRefreshingContent={app.isRefreshingContent}

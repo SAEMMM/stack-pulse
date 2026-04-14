@@ -1,7 +1,7 @@
 import { ContentBundle } from "../types/app";
 import { NativeModules } from "react-native";
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:4318";
+const DEV_API_PORT = 4318;
 const REMOTE_FETCH_TIMEOUT_MS = 5000;
 
 export const DEFAULT_STACK_OPTIONS = [
@@ -47,7 +47,14 @@ function isValidBundle(value: unknown): value is ContentBundle {
   );
 }
 
-function getApiBaseUrl() {
+function getDevApiBaseUrl() {
+  const explicitDevHost =
+    typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_DEV_API_HOST ?? "") : "";
+
+  if (explicitDevHost) {
+    return `http://${explicitDevHost}:${DEV_API_PORT}`;
+  }
+
   const extra =
     typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
 
@@ -64,20 +71,40 @@ function getApiBaseUrl() {
     try {
       const parsed = new URL(scriptURL);
       if (parsed.hostname) {
-        return `http://${parsed.hostname}:4318`;
+        return `http://${parsed.hostname}:${DEV_API_PORT}`;
       }
     } catch {
-      return DEFAULT_API_BASE_URL;
+      return null;
     }
   }
 
-  return DEFAULT_API_BASE_URL;
+  return null;
+}
+
+function getApiBaseUrl() {
+  const explicit =
+    typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
+
+  if (explicit) {
+    return explicit;
+  }
+
+  if (typeof __DEV__ !== "undefined" && __DEV__) {
+    return getDevApiBaseUrl();
+  }
+
+  return null;
 }
 
 export async function triggerRemoteContentRefresh() {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    return false;
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REMOTE_FETCH_TIMEOUT_MS);
-  const url = new URL("/api/refresh", getApiBaseUrl());
+  const url = new URL("/api/refresh", apiBaseUrl);
 
   try {
     const response = await fetch(url.toString(), {
@@ -99,9 +126,14 @@ export async function triggerRemoteContentRefresh() {
 }
 
 export async function fetchRemoteContentBundle(stacks: string[]) {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    return null;
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REMOTE_FETCH_TIMEOUT_MS);
-  const url = new URL("/api/feed", getApiBaseUrl());
+  const url = new URL("/api/feed", apiBaseUrl);
 
   if (stacks.length > 0) {
     url.searchParams.set("stacks", stacks.join(","));
@@ -133,4 +165,6 @@ export async function fetchRemoteContentBundle(stacks: string[]) {
   }
 }
 
-export { DEFAULT_API_BASE_URL };
+export function getConfiguredApiBaseUrl() {
+  return getApiBaseUrl();
+}
