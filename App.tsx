@@ -80,8 +80,11 @@ export default function App() {
             uiLanguage={app.preferences.uiLanguage}
             stacks={app.preferences.stacks}
             role={app.preferences.role}
+            hasMore={Boolean(app.nextCursor)}
+            isLoadingMore={app.isLoadingMore}
             isRefreshing={app.isRefreshingContent}
             lastRefreshSucceeded={app.lastRefreshSucceeded}
+            onLoadMore={app.loadMoreIssues}
             onPressIssue={app.openIssue}
             onRefresh={app.refreshContent}
             onToggleSaved={app.toggleSaved}

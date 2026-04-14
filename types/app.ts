@@ -98,3 +98,7 @@ export type ContentBundle = {
 };
 
 export type ContentSource = "empty" | "remote";
+
+export type FeedResponse = ContentBundle & {
+  nextCursor: string | null;
+};

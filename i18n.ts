@@ -50,6 +50,8 @@ const resources = {
         title: "Key developer issues, fast.",
         updated: "Updated {{date}} · {{source}}",
         refreshFailed: "Could not reach the latest content. Showing the last available set.",
+        loadMore: "Load more issues",
+        loadingMore: "Loading more...",
         source: {
           empty: "no content",
           remote: "live",
@@ -130,6 +132,10 @@ const resources = {
         hideReadTitle: "Hide read issues",
         hideReadOn: "Read issues are automatically hidden from the feed.",
         hideReadOff: "Read issues remain visible in the feed.",
+        footerTitle: "About",
+        footerDeveloper: "Developer: SAEM",
+        footerContact: "Contact: saem030@naver.com",
+        footerCopyright: "Copyright © 2026 StackPulse. All rights reserved.",
       },
       roles: {
         frontend: "Frontend Developer",
@@ -185,6 +191,8 @@ const resources = {
         title: "핵심 기술 이슈만 빠르게 봅니다.",
         updated: "{{date}} 기준 업데이트 · {{source}}",
         refreshFailed: "최신 콘텐츠에 연결하지 못해 마지막으로 사용 가능한 데이터를 보여주고 있습니다.",
+        loadMore: "이슈 더 보기",
+        loadingMore: "더 불러오는 중...",
         source: {
           empty: "데이터 없음",
           remote: "실시간 연결",
@@ -264,6 +272,10 @@ const resources = {
         hideReadTitle: "읽은 이슈 숨기기",
         hideReadOn: "피드에서 읽은 이슈를 자동으로 숨기고 있습니다.",
         hideReadOff: "읽은 이슈도 계속 피드에 보여주고 있습니다.",
+        footerTitle: "앱 정보",
+        footerDeveloper: "개발자: SAEM",
+        footerContact: "문의: saem030@naver.com",
+        footerCopyright: "Copyright © 2026 StackPulse. All rights reserved.",
       },
       roles: {
         frontend: "프론트엔드 개발자",

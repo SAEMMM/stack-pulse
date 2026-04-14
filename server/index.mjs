@@ -80,7 +80,7 @@ function getAvailableStacks(db) {
   return row ? JSON.parse(row.value_json) : [];
 }
 
-function getFeed(db, stacks) {
+function getFeed(db, stacks, cursor, limit) {
   const filters = stacks.filter(Boolean);
   const baseSelect = `
     SELECT DISTINCT issues.payload_json AS payload_json
@@ -108,20 +108,27 @@ function getFeed(db, stacks) {
       .all();
   }
 
-  const issues = rows.map((row) => JSON.parse(row.payload_json));
+  const allIssues = rows.map((row) => JSON.parse(row.payload_json));
+  const offset = Number.parseInt(cursor || "0", 10);
+  const safeOffset = Number.isFinite(offset) && offset > 0 ? offset : 0;
+  const safeLimit = Math.min(Math.max(limit, 1), 50);
+  const issues = allIssues.slice(safeOffset, safeOffset + safeLimit);
+  const nextCursor =
+    safeOffset + safeLimit < allIssues.length ? String(safeOffset + safeLimit) : null;
   const contentMeta = getContentMeta(db);
 
   return {
     issues,
     availableStacks: getAvailableStacks(db),
+    nextCursor,
     contentMeta: contentMeta
       ? {
           ...contentMeta,
-          issueCount: issues.length,
+          issueCount: allIssues.length,
         }
       : {
           generatedAt: "",
-          issueCount: issues.length,
+          issueCount: allIssues.length,
           sourceCount: 0,
           officialSourceCount: 0,
           fallbackSourceCount: 0,
@@ -199,8 +206,10 @@ const server = http.createServer(async (req, res) => {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
+      const cursor = url.searchParams.get("cursor");
+      const limit = Number.parseInt(url.searchParams.get("limit") || "20", 10);
 
-      json(res, 200, getFeed(db, stacks));
+      json(res, 200, getFeed(db, stacks, cursor, limit));
       return;
     }
 

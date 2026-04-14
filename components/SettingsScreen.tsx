@@ -203,6 +203,13 @@ export function SettingsScreen({
           </Text>
         </Pressable>
       </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerTitle}>{t("settings.footerTitle")}</Text>
+        <Text style={styles.footerText}>{t("settings.footerDeveloper")}</Text>
+        <Text style={styles.footerText}>{t("settings.footerContact")}</Text>
+        <Text style={styles.footerText}>{t("settings.footerCopyright")}</Text>
+      </View>
     </ScrollView>
   );
 }
@@ -330,5 +337,21 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: "#ffffff",
+  },
+  footer: {
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  footerTitle: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+    marginBottom: spacing.xs,
+    textTransform: "uppercase",
+  },
+  footerText: {
+    color: colors.subtext,
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

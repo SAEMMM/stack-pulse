@@ -62,16 +62,19 @@ export function useStackPulseApp() {
   const [contentBundle, setContentBundle] = useState<ContentBundle>(emptyContentBundle);
   const [contentSource, setContentSource] = useState<ContentSource>("empty");
   const [isRefreshingContent, setIsRefreshingContent] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastRefreshSucceeded, setLastRefreshSucceeded] = useState<boolean | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [states, setStates] = useState<Record<string, IssueState>>(() =>
     createInitialState(emptyContentBundle.issues),
   );
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [currentTab, setCurrentTab] = useState<AppTab>("feed");
 
-  function applyRemoteBundle(remoteBundle: ContentBundle) {
+  function applyRemoteBundle(remoteBundle: ContentBundle, cursor: string | null) {
     setContentBundle(remoteBundle);
     setContentSource("remote");
+    setNextCursor(cursor);
     setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
     setLastRefreshSucceeded(true);
 
@@ -132,18 +135,25 @@ export function useStackPulseApp() {
       setIsRefreshingContent(true);
 
       try {
-        const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
+        const remoteFeed = await fetchRemoteContentBundle(preferences.stacks);
 
         if (!isMounted || requestSequenceRef.current !== requestId) {
           return;
         }
 
-        if (!remoteBundle) {
+        if (!remoteFeed) {
           setLastRefreshSucceeded(false);
           return;
         }
 
-        applyRemoteBundle(remoteBundle);
+        applyRemoteBundle(
+          {
+            issues: remoteFeed.issues,
+            availableStacks: remoteFeed.availableStacks,
+            contentMeta: remoteFeed.contentMeta,
+          },
+          remoteFeed.nextCursor ?? null,
+        );
       } finally {
         if (isMounted && requestSequenceRef.current === requestId) {
           setIsRefreshingContent(false);
@@ -281,23 +291,62 @@ export function useStackPulseApp() {
 
     try {
       await triggerRemoteContentRefresh();
-      const remoteBundle = await fetchRemoteContentBundle(preferences.stacks);
+      const remoteFeed = await fetchRemoteContentBundle(preferences.stacks);
 
       if (requestSequenceRef.current !== requestId) {
         return false;
       }
 
-      if (remoteBundle) {
-        applyRemoteBundle(remoteBundle);
+      if (remoteFeed) {
+        applyRemoteBundle(
+          {
+            issues: remoteFeed.issues,
+            availableStacks: remoteFeed.availableStacks,
+            contentMeta: remoteFeed.contentMeta,
+          },
+          remoteFeed.nextCursor ?? null,
+        );
       } else {
         setLastRefreshSucceeded(false);
       }
 
-      return Boolean(remoteBundle);
+      return Boolean(remoteFeed);
     } finally {
       if (requestSequenceRef.current === requestId) {
         setIsRefreshingContent(false);
       }
+    }
+  }
+
+  async function loadMoreIssues() {
+    if (!nextCursor || isLoadingMore) {
+      return false;
+    }
+
+    setIsLoadingMore(true);
+
+    try {
+      const remoteFeed = await fetchRemoteContentBundle(preferences.stacks, nextCursor);
+
+      if (!remoteFeed) {
+        return false;
+      }
+
+      setContentBundle((prev) => ({
+        issues: [
+          ...prev.issues,
+          ...remoteFeed.issues.filter((issue) => !prev.issues.some((item) => item.id === issue.id)),
+        ],
+        availableStacks: remoteFeed.availableStacks,
+        contentMeta: remoteFeed.contentMeta,
+      }));
+      setNextCursor(remoteFeed.nextCursor ?? null);
+      setContentSource("remote");
+      setStates((prev) => reconcileIssueStates(remoteFeed.issues, prev));
+
+      return true;
+    } finally {
+      setIsLoadingMore(false);
     }
   }
 
@@ -312,8 +361,11 @@ export function useStackPulseApp() {
     currentTab,
     isReady,
     isOnboarded,
+    isLoadingMore,
     isRefreshingContent,
     lastRefreshSucceeded,
+    loadMoreIssues,
+    nextCursor,
     notifications,
     preferences,
     refreshContent,

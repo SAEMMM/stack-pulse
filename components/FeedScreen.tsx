@@ -17,8 +17,11 @@ export function FeedScreen({
   uiLanguage,
   stacks,
   role,
+  hasMore,
+  isLoadingMore,
   isRefreshing,
   lastRefreshSucceeded,
+  onLoadMore,
   onPressIssue,
   onRefresh,
   onToggleSaved,
@@ -32,8 +35,11 @@ export function FeedScreen({
   uiLanguage: UiLanguage;
   stacks: string[];
   role: UserRole;
+  hasMore: boolean;
+  isLoadingMore: boolean;
   isRefreshing: boolean;
   lastRefreshSucceeded: boolean | null;
+  onLoadMore: () => Promise<boolean>;
   onPressIssue: (issue: Issue) => void;
   onRefresh: () => Promise<boolean>;
   onToggleSaved: (issueId: string) => void;
@@ -153,19 +159,32 @@ export function FeedScreen({
           <Text style={styles.emptyBody}>{t("feed.emptyBody")}</Text>
         </View>
       ) : (
-        filteredIssues.map((issue) => (
-          <IssueCard
-            key={issue.id}
-            issue={issue}
-            state={states[issue.id]}
-            mode={mode}
-            stacks={stacks}
-            role={role}
-            variant="compact"
-            onPress={() => onPressIssue(issue)}
-            onToggleSaved={() => onToggleSaved(issue.id)}
-          />
-        ))
+        <>
+          {filteredIssues.map((issue) => (
+            <IssueCard
+              key={issue.id}
+              issue={issue}
+              state={states[issue.id]}
+              mode={mode}
+              stacks={stacks}
+              role={role}
+              variant="compact"
+              onPress={() => onPressIssue(issue)}
+              onToggleSaved={() => onToggleSaved(issue.id)}
+            />
+          ))}
+          {activeFilter === "all" && hasMore ? (
+            <Pressable
+              style={[styles.loadMoreButton, isLoadingMore && styles.loadMoreButtonDisabled]}
+              disabled={isLoadingMore}
+              onPress={onLoadMore}
+            >
+              <Text style={styles.loadMoreText}>
+                {isLoadingMore ? t("feed.loadingMore") : t("feed.loadMore")}
+              </Text>
+            </Pressable>
+          ) : null}
+        </>
       )}
     </ScrollView>
   );
@@ -205,6 +224,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: spacing.md,
     marginTop: -spacing.sm,
+  },
+  loadMoreButton: {
+    alignItems: "center",
+    backgroundColor: colors.panelElevated,
+    borderColor: colors.border,
+    borderRadius: 18,
+    borderWidth: 1,
+    marginTop: spacing.xs,
+    paddingVertical: 14,
+  },
+  loadMoreButtonDisabled: {
+    opacity: 0.6,
+  },
+  loadMoreText: {
+    color: colors.accentStrong,
+    fontSize: 14,
+    fontWeight: "800",
   },
   languageSwitch: {
     alignSelf: "flex-start",

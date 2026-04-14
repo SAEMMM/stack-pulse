@@ -1,5 +1,5 @@
-import { ContentBundle } from "../types/app";
-import { NativeModules } from "react-native";
+import { ContentBundle, FeedResponse } from "../types/app";
+import { NativeModules, Platform } from "react-native";
 
 const DEV_API_PORT = 4318;
 const REMOTE_FETCH_TIMEOUT_MS = 5000;
@@ -35,15 +35,16 @@ export function createEmptyContentBundle(): ContentBundle {
   };
 }
 
-function isValidBundle(value: unknown): value is ContentBundle {
+function isValidFeedResponse(value: unknown): value is FeedResponse {
   if (!value || typeof value !== "object") return false;
 
-  const candidate = value as Partial<ContentBundle>;
+  const candidate = value as Partial<FeedResponse>;
   return (
     Array.isArray(candidate.issues) &&
     Array.isArray(candidate.availableStacks) &&
     typeof candidate.contentMeta?.issueCount === "number" &&
-    typeof candidate.contentMeta?.sourceCount === "number"
+    typeof candidate.contentMeta?.sourceCount === "number" &&
+    (typeof candidate.nextCursor === "string" || candidate.nextCursor === null || typeof candidate.nextCursor === "undefined")
   );
 }
 
@@ -53,6 +54,14 @@ function getDevApiBaseUrl() {
 
   if (explicitDevHost) {
     return `http://${explicitDevHost}:${DEV_API_PORT}`;
+  }
+
+  if (Platform.OS === "ios") {
+    return `http://127.0.0.1:${DEV_API_PORT}`;
+  }
+
+  if (Platform.OS === "android") {
+    return `http://10.0.2.2:${DEV_API_PORT}`;
   }
 
   const extra =
@@ -125,7 +134,7 @@ export async function triggerRemoteContentRefresh() {
   }
 }
 
-export async function fetchRemoteContentBundle(stacks: string[]) {
+export async function fetchRemoteContentBundle(stacks: string[], cursor?: string | null) {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) {
     return null;
@@ -137,6 +146,10 @@ export async function fetchRemoteContentBundle(stacks: string[]) {
 
   if (stacks.length > 0) {
     url.searchParams.set("stacks", stacks.join(","));
+  }
+
+  if (cursor) {
+    url.searchParams.set("cursor", cursor);
   }
 
   try {
@@ -153,7 +166,7 @@ export async function fetchRemoteContentBundle(stacks: string[]) {
 
     const payload: unknown = await response.json();
 
-    if (!isValidBundle(payload)) {
+    if (!isValidFeedResponse(payload)) {
       return null;
     }
 
