@@ -1,23 +1,26 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { IssueState, UserPreferences } from "../types/app";
+import { IssueState, UserPreferences, UserSession } from "../types/app";
 
 const STORAGE_KEYS = {
   isOnboarded: "stackpulse:isOnboarded",
   preferences: "stackpulse:preferences",
   issueStates: "stackpulse:issueStates",
+  userSession: "stackpulse:userSession",
 } as const;
 
 type PersistedAppState = {
   isOnboarded: boolean;
   preferences: UserPreferences | null;
   issueStates: Record<string, IssueState> | null;
+  userSession: UserSession | null;
 };
 
 export async function loadPersistedAppState(): Promise<PersistedAppState> {
-  const [isOnboardedRaw, preferencesRaw, issueStatesRaw] = await Promise.all([
+  const [isOnboardedRaw, preferencesRaw, issueStatesRaw, userSessionRaw] = await Promise.all([
     AsyncStorage.getItem(STORAGE_KEYS.isOnboarded),
     AsyncStorage.getItem(STORAGE_KEYS.preferences),
     AsyncStorage.getItem(STORAGE_KEYS.issueStates),
+    AsyncStorage.getItem(STORAGE_KEYS.userSession),
   ]);
 
   return {
@@ -26,6 +29,7 @@ export async function loadPersistedAppState(): Promise<PersistedAppState> {
     issueStates: issueStatesRaw
       ? (JSON.parse(issueStatesRaw) as Record<string, IssueState>)
       : null,
+    userSession: userSessionRaw ? (JSON.parse(userSessionRaw) as UserSession) : null,
   };
 }
 
@@ -39,4 +43,8 @@ export async function persistPreferences(value: UserPreferences) {
 
 export async function persistIssueStates(value: Record<string, IssueState>) {
   await AsyncStorage.setItem(STORAGE_KEYS.issueStates, JSON.stringify(value));
+}
+
+export async function persistUserSession(value: UserSession) {
+  await AsyncStorage.setItem(STORAGE_KEYS.userSession, JSON.stringify(value));
 }

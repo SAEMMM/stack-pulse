@@ -31,6 +31,20 @@ function createEmptyContentMeta(issueCount = 0) {
   };
 }
 
+function createEmptyUserProfile(userId) {
+  const timestamp = new Date().toISOString();
+
+  return {
+    userId,
+    accountType: "guest",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    isOnboarded: false,
+    preferences: null,
+    issueStates: {},
+  };
+}
+
 class SqliteStore {
   constructor() {
     ensureDataDir();
@@ -67,6 +81,23 @@ class SqliteStore {
       CREATE TABLE IF NOT EXISTS metadata (
         key TEXT PRIMARY KEY,
         value_json TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        account_type TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        is_onboarded INTEGER NOT NULL DEFAULT 0,
+        preferences_json TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS user_issue_states (
+        user_id TEXT NOT NULL,
+        issue_id TEXT NOT NULL,
+        state_json TEXT NOT NULL,
+        PRIMARY KEY (user_id, issue_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
   }
@@ -198,6 +229,83 @@ class SqliteStore {
     return row ? JSON.parse(row.payload_json) : null;
   }
 
+  async getUserProfile(userId) {
+    const userRow = this.db
+      .prepare(
+        `
+          SELECT id, account_type, created_at, updated_at, is_onboarded, preferences_json
+          FROM users
+          WHERE id = ?
+        `,
+      )
+      .get(userId);
+
+    if (!userRow) {
+      return createEmptyUserProfile(userId);
+    }
+
+    const issueRows = this.db
+      .prepare(`SELECT issue_id, state_json FROM user_issue_states WHERE user_id = ?`)
+      .all(userId);
+
+    return {
+      userId: userRow.id,
+      accountType: userRow.account_type,
+      createdAt: userRow.created_at,
+      updatedAt: userRow.updated_at,
+      isOnboarded: Boolean(userRow.is_onboarded),
+      preferences: userRow.preferences_json ? JSON.parse(userRow.preferences_json) : null,
+      issueStates: Object.fromEntries(
+        issueRows.map((row) => [row.issue_id, JSON.parse(row.state_json)]),
+      ),
+    };
+  }
+
+  async syncUserProfile(profile) {
+    const upsertUser = this.db.prepare(`
+      INSERT INTO users (id, account_type, created_at, updated_at, is_onboarded, preferences_json)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        account_type = excluded.account_type,
+        updated_at = excluded.updated_at,
+        is_onboarded = excluded.is_onboarded,
+        preferences_json = excluded.preferences_json
+    `);
+    const deleteIssueStates = this.db.prepare(`DELETE FROM user_issue_states WHERE user_id = ?`);
+    const insertIssueState = this.db.prepare(`
+      INSERT INTO user_issue_states (user_id, issue_id, state_json)
+      VALUES (?, ?, ?)
+      ON CONFLICT(user_id, issue_id) DO UPDATE SET
+        state_json = excluded.state_json
+    `);
+
+    try {
+      this.db.exec("BEGIN");
+
+      upsertUser.run(
+        profile.userId,
+        profile.accountType,
+        profile.createdAt,
+        profile.updatedAt,
+        profile.isOnboarded ? 1 : 0,
+        profile.preferences ? JSON.stringify(profile.preferences) : null,
+      );
+
+      deleteIssueStates.run(profile.userId);
+
+      for (const [issueId, state] of Object.entries(profile.issueStates ?? {})) {
+        insertIssueState.run(profile.userId, issueId, JSON.stringify(state));
+      }
+
+      this.db.exec("COMMIT");
+    } catch (error) {
+      this.db.exec("ROLLBACK");
+      throw error;
+    }
+
+    return this.getUserProfile(profile.userId);
+  }
+
   async close() {
     this.db.close();
   }
@@ -247,6 +355,24 @@ class PostgresStore {
       CREATE TABLE IF NOT EXISTS metadata (
         key TEXT PRIMARY KEY,
         value_json JSONB NOT NULL
+      );
+    `);
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        account_type TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL,
+        is_onboarded BOOLEAN NOT NULL DEFAULT FALSE,
+        preferences_json JSONB
+      );
+    `);
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS user_issue_states (
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        issue_id TEXT NOT NULL,
+        state_json JSONB NOT NULL,
+        PRIMARY KEY (user_id, issue_id)
       );
     `);
   }
@@ -414,6 +540,91 @@ class PostgresStore {
     return result.rows[0] ? result.rows[0].payload_json : null;
   }
 
+  async getUserProfile(userId) {
+    const userResult = await this.pool.query(
+      `
+        SELECT id, account_type, created_at, updated_at, is_onboarded, preferences_json
+        FROM users
+        WHERE id = $1
+      `,
+      [userId],
+    );
+
+    if (!userResult.rows[0]) {
+      return createEmptyUserProfile(userId);
+    }
+
+    const issueStatesResult = await this.pool.query(
+      `
+        SELECT issue_id, state_json
+        FROM user_issue_states
+        WHERE user_id = $1
+      `,
+      [userId],
+    );
+
+    const row = userResult.rows[0];
+
+    return {
+      userId: row.id,
+      accountType: row.account_type,
+      createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+      updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
+      isOnboarded: Boolean(row.is_onboarded),
+      preferences: row.preferences_json ?? null,
+      issueStates: Object.fromEntries(
+        issueStatesResult.rows.map((issueRow) => [issueRow.issue_id, issueRow.state_json]),
+      ),
+    };
+  }
+
+  async syncUserProfile(profile) {
+    const client = await this.pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query(
+        `
+          INSERT INTO users (id, account_type, created_at, updated_at, is_onboarded, preferences_json)
+          VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+          ON CONFLICT(id) DO UPDATE SET
+            account_type = EXCLUDED.account_type,
+            updated_at = EXCLUDED.updated_at,
+            is_onboarded = EXCLUDED.is_onboarded,
+            preferences_json = EXCLUDED.preferences_json
+        `,
+        [
+          profile.userId,
+          profile.accountType,
+          profile.createdAt,
+          profile.updatedAt,
+          profile.isOnboarded,
+          profile.preferences ? JSON.stringify(profile.preferences) : null,
+        ],
+      );
+      await client.query(`DELETE FROM user_issue_states WHERE user_id = $1`, [profile.userId]);
+
+      for (const [issueId, state] of Object.entries(profile.issueStates ?? {})) {
+        await client.query(
+          `
+            INSERT INTO user_issue_states (user_id, issue_id, state_json)
+            VALUES ($1, $2, $3::jsonb)
+          `,
+          [profile.userId, issueId, JSON.stringify(state)],
+        );
+      }
+
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+
+    return this.getUserProfile(profile.userId);
+  }
+
   async close() {
     await this.pool.end();
   }
@@ -427,9 +638,25 @@ class PostgresStore {
 }
 
 export async function createStore() {
-  const store = getDatabaseMode() === "postgres" ? new PostgresStore() : new SqliteStore();
-  await store.init();
-  return store;
+  if (getDatabaseMode() !== "postgres") {
+    const store = new SqliteStore();
+    await store.init();
+    return store;
+  }
+
+  const postgresStore = new PostgresStore();
+
+  try {
+    await postgresStore.init();
+    return postgresStore;
+  } catch (error) {
+    console.warn("Postgres store unavailable. Falling back to local SQLite store.");
+    console.warn(error instanceof Error ? error.message : String(error));
+
+    const sqliteStore = new SqliteStore();
+    await sqliteStore.init();
+    return sqliteStore;
+  }
 }
 
 export function getStoreInfo() {
@@ -437,6 +664,7 @@ export function getStoreInfo() {
     ? {
         mode: "postgres",
         hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+        fallback: "sqlite_on_failure",
       }
     : {
         mode: "sqlite",

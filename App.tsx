@@ -120,10 +120,14 @@ export default function App() {
             apiBaseUrl={app.apiBaseUrl}
             contentMeta={app.contentMeta}
             contentSource={app.contentSource}
+            debugFirstIssueId={app.sortedIssues[0]?.id ?? null}
+            isSyncingAccount={app.isSyncingAccount}
             isRefreshingContent={app.isRefreshingContent}
+            lastAccountSyncSucceeded={app.lastAccountSyncSucceeded}
             preferences={app.preferences}
             onChange={app.setPreferences}
             onRefreshContent={app.refreshContent}
+            userSession={app.userSession}
           />
         )}
 

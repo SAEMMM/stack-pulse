@@ -28,6 +28,10 @@ function notFound(res) {
   json(res, 404, { error: "not_found" });
 }
 
+function badRequest(res, message) {
+  json(res, 400, { error: "bad_request", message });
+}
+
 function runContentRefresh() {
   if (refreshInFlight) {
     return refreshInFlight;
@@ -137,6 +141,38 @@ const server = http.createServer(async (req, res) => {
       const limit = Number.parseInt(url.searchParams.get("limit") || "20", 10);
 
       json(res, 200, await store.getFeed(stacks, cursor, limit));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/me") {
+      const userId = url.searchParams.get("userId")?.trim();
+
+      if (!userId) {
+        badRequest(res, "userId is required");
+        return;
+      }
+
+      json(res, 200, await store.getUserProfile(userId));
+      return;
+    }
+
+    if (req.method === "PUT" && url.pathname === "/api/me") {
+      const rawBody = await readRequestBody(req);
+      let payload = null;
+
+      try {
+        payload = rawBody ? JSON.parse(rawBody) : null;
+      } catch {
+        badRequest(res, "request body must be valid JSON");
+        return;
+      }
+
+      if (!payload?.userId || typeof payload.userId !== "string") {
+        badRequest(res, "userId is required");
+        return;
+      }
+
+      json(res, 200, await store.syncUserProfile(payload));
       return;
     }
 

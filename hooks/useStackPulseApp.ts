@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { fetchRemoteUserProfile, syncRemoteUserProfile } from "../lib/account";
 import {
   createEmptyContentBundle,
   DEFAULT_STACK_OPTIONS,
@@ -6,7 +7,16 @@ import {
   getConfiguredApiBaseUrl,
   triggerRemoteContentRefresh,
 } from "../lib/content";
-import { AppTab, ContentBundle, ContentSource, Issue, IssueState, UserPreferences } from "../types/app";
+import {
+  AppTab,
+  ContentBundle,
+  ContentSource,
+  Issue,
+  IssueState,
+  RemoteUserProfile,
+  UserPreferences,
+  UserSession,
+} from "../types/app";
 import { sortIssues } from "../lib/format";
 import { getNotificationPermissionState, scheduleIssueNotification } from "../lib/notifications";
 import {
@@ -14,6 +24,7 @@ import {
   persistIsOnboarded,
   persistIssueStates,
   persistPreferences,
+  persistUserSession,
 } from "../lib/storage";
 
 const defaultPreferences: UserPreferences = {
@@ -26,6 +37,30 @@ const defaultPreferences: UserPreferences = {
 };
 
 const emptyContentBundle = createEmptyContentBundle();
+
+function createGuestSession(): UserSession {
+  return {
+    userId: `guest_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`,
+    accountType: "guest",
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function resolveContentSource(contentMeta: ContentBundle["contentMeta"]): ContentSource {
+  if (contentMeta.issueCount === 0) {
+    return "empty";
+  }
+
+  if (contentMeta.fetchMode === "fixture") {
+    return "fixture";
+  }
+
+  if (contentMeta.fetchMode === "live" && contentMeta.fallbackSourceCount > 0) {
+    return "mixed";
+  }
+
+  return "live";
+}
 
 function createStateForIssue(issue: Issue): IssueState {
   return {
@@ -45,6 +80,46 @@ function createInitialState(issues: Issue[]): Record<string, IssueState> {
   );
 }
 
+function mergeIssueStateRecords(
+  localStates?: Record<string, IssueState> | null,
+  remoteStates?: Record<string, IssueState> | null,
+): Record<string, IssueState> {
+  const issueIds = new Set([
+    ...Object.keys(localStates ?? {}),
+    ...Object.keys(remoteStates ?? {}),
+  ]);
+
+  const merged: Record<string, IssueState> = {};
+
+  for (const issueId of issueIds) {
+    const local = localStates?.[issueId];
+    const remote = remoteStates?.[issueId];
+
+    if (!local && !remote) {
+      continue;
+    }
+
+    if (!local) {
+      merged[issueId] = remote!;
+      continue;
+    }
+
+    if (!remote) {
+      merged[issueId] = local;
+      continue;
+    }
+
+    merged[issueId] = {
+      issueId,
+      isRead: local.isRead || remote.isRead,
+      isSaved: local.isSaved || remote.isSaved,
+      isNotified: local.isNotified || remote.isNotified,
+    };
+  }
+
+  return merged;
+}
+
 function reconcileIssueStates(
   issues: Issue[],
   existing?: Record<string, IssueState> | null,
@@ -56,13 +131,17 @@ function reconcileIssueStates(
 
 export function useStackPulseApp() {
   const requestSequenceRef = useRef(0);
+  const didHydrateRef = useRef(false);
   const [isReady, setIsReady] = useState(false);
   const [isOnboarded, setIsOnboarded] = useState(false);
+  const [userSession, setUserSession] = useState<UserSession | null>(null);
   const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences);
   const [contentBundle, setContentBundle] = useState<ContentBundle>(emptyContentBundle);
   const [contentSource, setContentSource] = useState<ContentSource>("empty");
   const [isRefreshingContent, setIsRefreshingContent] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSyncingAccount, setIsSyncingAccount] = useState(false);
+  const [lastAccountSyncSucceeded, setLastAccountSyncSucceeded] = useState<boolean | null>(null);
   const [lastRefreshSucceeded, setLastRefreshSucceeded] = useState<boolean | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [states, setStates] = useState<Record<string, IssueState>>(() =>
@@ -73,7 +152,7 @@ export function useStackPulseApp() {
 
   function applyRemoteBundle(remoteBundle: ContentBundle, cursor: string | null) {
     setContentBundle(remoteBundle);
-    setContentSource("remote");
+    setContentSource(resolveContentSource(remoteBundle.contentMeta));
     setNextCursor(cursor);
     setStates((prev) => reconcileIssueStates(remoteBundle.issues, prev));
     setLastRefreshSucceeded(true);
@@ -91,12 +170,21 @@ export function useStackPulseApp() {
       try {
         const persisted = await loadPersistedAppState();
         const notificationPermission = await getNotificationPermissionState();
+        const session = persisted.userSession ?? createGuestSession();
+        const remoteProfile = await fetchRemoteUserProfile(session.userId);
+        const mergedIssueStates = mergeIssueStateRecords(
+          persisted.issueStates,
+          remoteProfile?.issueStates,
+        );
+        const mergedPreferences = remoteProfile?.preferences ?? persisted.preferences;
 
         if (!isMounted) return;
 
-        if (persisted.preferences) {
+        setUserSession(session);
+
+        if (mergedPreferences) {
           setPreferences({
-            ...persisted.preferences,
+            ...mergedPreferences,
             notificationPermission,
           });
         } else {
@@ -106,13 +194,18 @@ export function useStackPulseApp() {
           }));
         }
 
-        setStates((prev) => ({ ...prev, ...(persisted.issueStates ?? {}) }));
+        setStates((prev) => ({ ...prev, ...mergedIssueStates }));
 
-        if (persisted.isOnboarded) {
+        if (remoteProfile) {
+          setLastAccountSyncSucceeded(true);
+        }
+
+        if (remoteProfile?.isOnboarded || persisted.isOnboarded) {
           setIsOnboarded(true);
         }
       } finally {
         if (isMounted) {
+          didHydrateRef.current = true;
           setIsReady(true);
         }
       }
@@ -182,6 +275,50 @@ export function useStackPulseApp() {
     if (!isReady) return;
     persistIsOnboarded(isOnboarded);
   }, [isOnboarded, isReady]);
+
+  useEffect(() => {
+    if (!userSession) return;
+    persistUserSession(userSession);
+  }, [userSession]);
+
+  useEffect(() => {
+    if (!isReady || !didHydrateRef.current || !userSession) return;
+
+    const session = userSession;
+    let cancelled = false;
+
+    async function syncAccount() {
+      setIsSyncingAccount(true);
+
+      const profile: RemoteUserProfile = {
+        userId: session.userId,
+        accountType: session.accountType,
+        createdAt: session.createdAt,
+        updatedAt: new Date().toISOString(),
+        isOnboarded,
+        preferences,
+        issueStates: states,
+      };
+
+      const syncedProfile = await syncRemoteUserProfile(profile);
+
+      if (cancelled) return;
+
+      setLastAccountSyncSucceeded(Boolean(syncedProfile));
+      setIsSyncingAccount(false);
+    }
+
+    syncAccount().catch(() => {
+      if (!cancelled) {
+        setLastAccountSyncSucceeded(false);
+        setIsSyncingAccount(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOnboarded, isReady, preferences, states, userSession]);
 
   const sortedIssues = useMemo(
     () => sortIssues(contentBundle.issues, states, preferences.stacks),
@@ -341,7 +478,7 @@ export function useStackPulseApp() {
         contentMeta: remoteFeed.contentMeta,
       }));
       setNextCursor(remoteFeed.nextCursor ?? null);
-      setContentSource("remote");
+      setContentSource(resolveContentSource(remoteFeed.contentMeta));
       setStates((prev) => reconcileIssueStates(remoteFeed.issues, prev));
 
       return true;
@@ -363,6 +500,8 @@ export function useStackPulseApp() {
     isOnboarded,
     isLoadingMore,
     isRefreshingContent,
+    isSyncingAccount,
+    lastAccountSyncSucceeded,
     lastRefreshSucceeded,
     loadMoreIssues,
     nextCursor,
@@ -380,5 +519,6 @@ export function useStackPulseApp() {
     states,
     sortedIssues: visibleIssues,
     setSelectedIssue,
+    userSession,
   };
 }

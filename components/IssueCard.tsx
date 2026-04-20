@@ -8,6 +8,7 @@ import {
   getSeverityColors,
   getSeverityLabel,
   getPrimaryKeyLine,
+  getSummary,
 } from "../lib/format";
 import { Issue, IssueState, LanguageMode, UserRole } from "../types/app";
 import { Badge } from "./Badge";
@@ -36,6 +37,7 @@ export function IssueCard({
   const impactColors = getImpactColors(issue);
   const keyLine = getPrimaryKeyLine(issue, mode);
   const displayTitle = getDisplayTitle(issue, mode);
+  const summary = getSummary(issue, mode);
   const originalLabel = t("common.headline");
   const keyPointLabel = t("common.keyPoint");
   const saveLabel = state.isSaved
@@ -68,8 +70,21 @@ export function IssueCard({
         </View>
       )}
 
-      {variant === "compact" ? null : <Text style={styles.originalLabel}>{originalLabel}</Text>}
-      <Text style={styles.originalTitle}>{displayTitle}</Text>
+      {variant === "compact" ? (
+        <>
+          <Text numberOfLines={2} style={styles.compactSummary}>
+            {summary}
+          </Text>
+          <Text numberOfLines={1} style={styles.compactHeadline}>
+            {displayTitle}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.originalLabel}>{originalLabel}</Text>
+          <Text style={styles.originalTitle}>{displayTitle}</Text>
+        </>
+      )}
 
       {variant === "compact" ? (
         <>
@@ -152,6 +167,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
     lineHeight: 26,
+  },
+  compactSummary: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+    lineHeight: 25,
+    marginTop: spacing.xs,
+  },
+  compactHeadline: {
+    color: colors.subtext,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 18,
+    marginTop: spacing.xs,
   },
   sectionLabel: {
     color: colors.subtext,

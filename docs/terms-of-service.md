@@ -1,47 +1,113 @@
-# StackPulse Terms of Service
+# StackPulse 이용약관
 
-Last updated: 2026-04-14
+최종 업데이트: 2026-04-20
 
-## 1. Service
+본 이용약관은 StackPulse 서비스의 이용 조건과 운영 원칙을 설명합니다. 사용자는 StackPulse 앱, API, 관련 웹 문서 또는 이에 부속된 기능을 이용함으로써 본 약관에 동의한 것으로 봅니다.
 
-StackPulse is a developer-facing service that summarizes, interprets, and prioritizes technology issues for decision support. The service may include mobile applications, APIs, and related content pipelines.
+## 1. 서비스의 성격
 
-## 2. Intended Use
+StackPulse는 기술 뉴스, 릴리즈 노트, 보안 공지, 공식 블로그 등 공개된 소스를 바탕으로 개발자용 브리프를 제공하는 서비스입니다.
 
-StackPulse is intended to help developers understand technical updates faster. It is an informational product and should not be treated as legal, security, compliance, or production migration advice.
+서비스에는 다음이 포함될 수 있습니다.
 
-## 3. Source of Truth
+- 모바일 앱
+- 로컬 또는 원격 API
+- 개인화 피드
+- 저장, 읽음, 알림 기능
+- 정책 문서, 지원 문서, 문의 채널
 
-StackPulse preserves original source links whenever possible. Users remain responsible for reviewing official source materials before making high-impact technical decisions.
+## 2. 서비스 목적
 
-## 4. Availability
+StackPulse의 목적은 개발자가 기술 변화를 빠르게 파악하고 우선순위를 정하는 데 도움을 주는 것입니다.
 
-We may change, suspend, or remove features at any time, including alerts, saved items, API behavior, and content coverage.
+StackPulse는 참고용 정보 서비스이며, 다음을 대체하지 않습니다.
 
-## 5. Acceptable Use
+- 법률 자문
+- 보안 감사
+- 컴플라이언스 판단
+- 벤더의 공식 공지
+- 운영 배포 승인 절차
 
-You agree not to:
+## 3. 계정 및 개인화
 
-- Abuse or interfere with the service or its infrastructure
-- Attempt to scrape or copy the service in ways not permitted by law
-- Misrepresent StackPulse output as official vendor communication
+현재 StackPulse는 guest ID 기반 개인화를 지원할 수 있습니다.
 
-## 6. Intellectual Property
+- guest ID는 서비스 내부 식별자입니다.
+- 사용자는 자신의 관심 스택, 읽음 상태, 저장 상태, 알림 상태 등을 guest ID에 연결해 사용할 수 있습니다.
+- 향후 정식 로그인 기능이 추가되면 별도 고지 후 적용될 수 있습니다.
 
-StackPulse may display short summaries, interpretations, metadata, and links to third-party sources. Rights to original third-party materials remain with their respective owners.
+사용자는 자신의 기기와 연결된 guest ID 또는 향후 도입될 계정 정보를 안전하게 관리해야 합니다.
 
-## 7. Advertising and Sponsored Placements
+## 4. 원문과 해석 정보
 
-Future versions of StackPulse may include advertising or sponsored content. Such placements should be clearly distinguishable from editorial issue briefings.
+StackPulse는 원문 링크, 요약, 해석, 영향도, 액션 제안을 함께 제공할 수 있습니다.
 
-## 8. Disclaimers
+- 원문은 가능한 경우 함께 제공됩니다.
+- StackPulse의 해석과 액션 제안은 편의를 위한 참고 정보입니다.
+- 사용자는 중요한 기술 의사결정 전 반드시 공식 원문과 실제 운영 환경을 직접 검토해야 합니다.
 
-The service is provided on an "as is" basis without warranties of availability, completeness, or fitness for a particular purpose.
+## 5. 서비스 제공 및 변경
 
-## 9. Limitation of Liability
+StackPulse는 기능, 데이터 범위, UI, API, 알림 정책을 수시로 바꾸거나 중단할 수 있습니다.
 
-To the fullest extent permitted by law, StackPulse and its operator are not liable for damages resulting from use of the service or reliance on summaries, interpretations, alerts, or recommended actions.
+다음 항목은 사전 예고 없이 변경될 수 있습니다.
 
-## 10. Contact
+- 피드 구성 방식
+- 개인화 기준
+- 알림 발송 조건
+- 광고 또는 스폰서 콘텐츠 정책
+- 지원하는 플랫폼 및 기능 범위
 
-For service questions, contact: saem030@naver.com
+## 6. 이용자의 책임
+
+사용자는 서비스를 이용하면서 다음 사항을 준수해야 합니다.
+
+- 서비스나 인프라를 방해하거나 과도한 요청을 보내지 않을 것
+- 비정상적인 방식으로 데이터를 수집하거나 복제하지 않을 것
+- StackPulse의 편집 결과를 벤더의 공식 발표처럼 오인하게 만들지 않을 것
+- 법령이나 제3자의 권리를 침해하는 방식으로 서비스를 사용하지 않을 것
+
+## 7. 지식재산권
+
+StackPulse가 제공하는 UI, 편집된 설명, 요약, 해석, 메타데이터, 서비스 구조에 관한 권리는 StackPulse 또는 정당한 권리자에게 있습니다.
+
+외부 원문 콘텐츠의 권리는 각 원문 제공자에게 있습니다.
+
+사용자는 서비스 내용을 법령과 합리적인 이용 범위를 벗어나 복제, 재배포, 상업적 전재 목적으로 사용할 수 없습니다.
+
+## 8. 광고 및 스폰서 콘텐츠
+
+현재 StackPulse는 정식 광고 기능을 상시 운영하지 않을 수 있습니다.
+
+향후 광고 또는 스폰서 콘텐츠가 도입될 경우:
+
+- 일반 편집 콘텐츠와 구분되도록 표시합니다.
+- 관련 법령과 플랫폼 정책을 따릅니다.
+- 데이터 처리 방식에 변동이 있으면 개인정보처리방침에 반영합니다.
+
+## 9. 면책
+
+StackPulse는 서비스의 정확성, 완전성, 최신성, 특정 목적 적합성, 무중단 제공을 보장하지 않습니다.
+
+특히 다음에 대해 책임을 보장하지 않습니다.
+
+- 외부 원문 자체의 오류 또는 변경
+- 요약 및 해석 결과의 누락 또는 판단 차이
+- 알림 지연, 미발송, 중복 발송
+- 실시간 데이터 수집 실패로 인한 fallback 데이터 표시
+
+## 10. 책임 제한
+
+관련 법령이 허용하는 범위 내에서, StackPulse와 운영자는 서비스 이용 또는 이용 불가로 인해 발생하는 간접손해, 특별손해, 결과손해에 대해 책임을 지지 않습니다.
+
+사용자는 중요한 기술 의사결정, 보안 대응, 배포 계획 수립 시 StackPulse만을 유일한 근거로 사용해서는 안 됩니다.
+
+## 11. 준거 및 해석
+
+본 약관은 관련 법령에 따라 해석됩니다. 약관의 일부가 무효가 되더라도 나머지 조항의 효력에는 영향을 주지 않습니다.
+
+## 12. 문의
+
+서비스 관련 문의는 아래로 연락할 수 있습니다.
+
+- 이메일: saem030@naver.com

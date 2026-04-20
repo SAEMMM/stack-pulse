@@ -1,60 +1,111 @@
-# StackPulse Privacy Policy
+# StackPulse 개인정보처리방침
 
-Last updated: 2026-04-14
+최종 업데이트: 2026-04-20
 
-## 1. Overview
+StackPulse는 개발자가 기술 이슈를 더 빠르게 이해하고 판단할 수 있도록 돕는 서비스입니다. 본 개인정보처리방침은 StackPulse 모바일 앱, 로컬 또는 호스팅 API, 관련 운영 페이지에서 어떤 정보를 처리하는지 설명합니다.
 
-StackPulse provides developer-focused issue briefings based on technology news, release notes, and official sources. This policy explains what information may be collected when you use the StackPulse mobile app and related services.
+## 1. 수집하는 정보
 
-## 2. Information We Collect
+StackPulse는 현재 회원가입 기반 실명 계정이 아니라 `guest ID` 기반 개인화를 지원합니다. 이 과정에서 아래 정보가 처리될 수 있습니다.
 
-StackPulse may collect the following categories of information:
+- 앱 설정 정보
+  역할, 관심 기술 스택, UI 언어, 콘텐츠 표시 방식, 푸시 강도, 읽은 이슈 숨김 여부
+- 개인화 활동 정보
+  온보딩 완료 여부, 읽음 상태, 저장 상태, 알림 발송 상태
+- 기기 및 앱 권한 정보
+  알림 권한 허용 여부, 앱 사용에 필요한 최소한의 실행 정보
+- 기술 콘텐츠 이용 정보
+  어떤 스택 기준으로 피드를 조회했는지, 어떤 이슈를 열람했는지에 관한 서비스 상태 정보
+- 문의 정보
+  사용자가 이메일로 문의할 경우, 사용자가 직접 제공한 이름, 이메일 주소, 문의 내용
 
-- App preferences such as selected language, stacks, alert level, and saved issue state
-- Device-level notification permission status
-- Basic diagnostic information needed to improve app stability
-- Advertising and attribution signals when ads are enabled in a production build
+현재 StackPulse는 이름, 전화번호, 생년월일 같은 직접 식별 정보를 필수로 요구하지 않습니다.
 
-StackPulse does not require account creation in the current MVP, so the service is designed to minimize collection of directly identifiable personal information.
+## 2. 정보를 수집하는 방법
 
-## 3. How We Use Information
+StackPulse는 다음 방식으로 정보를 수집하거나 생성합니다.
 
-We use collected information to:
+- 사용자가 앱에서 직접 입력 또는 선택한 정보
+- 앱 사용 중 자동으로 생성되는 상태 정보
+- 앱이 로컬 저장소 또는 서버 저장소에 동기화하는 개인화 데이터
+- 사용자가 `문의하기`를 통해 이메일을 보낼 때 직접 제공한 정보
 
-- Personalize issue ranking based on selected stacks
-- Remember onboarding and saved state across app sessions
-- Deliver developer alerts and notification-related features
-- Improve feed relevance, product quality, and service reliability
-- Measure advertising performance if advertising is enabled
+## 3. 정보를 이용하는 목적
 
-## 4. Source Content
+StackPulse는 수집하거나 생성한 정보를 다음 목적에 한해 이용합니다.
 
-StackPulse collects and processes publicly available technical source materials such as official release notes, blog posts, and security advisories. Original source links remain available in the app as the source of truth.
+- 사용자별 관심 기술 스택에 맞는 피드 우선순위 제공
+- 읽음, 저장, 알림 상태 등 개인화 경험 유지
+- 앱 재설치 또는 기기 변경 이후에도 개인화 상태 복원
+- 알림 기능 제공 및 알림 중복 방지
+- 오류 대응, 서비스 안정성 확인, 로컬 및 원격 저장 동기화
+- 정책 고지, 문의 응답, 서비스 운영 관련 커뮤니케이션
 
-## 5. Advertising
+## 4. 계정 및 식별 방식
 
-StackPulse may display sponsored placements or advertising units in future versions of the app. If ads are enabled, the service may use limited device identifiers or attribution data as allowed by platform rules and applicable law.
+현재 StackPulse는 정식 로그인 계정 대신 guest ID를 발급하여 개인화 데이터를 관리할 수 있습니다.
 
-## 6. Data Sharing
+- guest ID는 서비스 내부 식별자이며, 사용자의 실명이나 연락처를 의미하지 않습니다.
+- guest ID는 앱 설정, 읽음/저장 상태, 온보딩 상태 같은 개인화 정보와 연결될 수 있습니다.
+- 추후 정식 로그인 기능이 도입되면, 별도 고지 후 계정 체계와 처리 방침이 함께 업데이트될 수 있습니다.
 
-StackPulse may use infrastructure or analytics providers to operate the service. We do not sell personal information collected through the app.
+## 5. 원문 콘텐츠와 제3자 소스
 
-## 7. Data Retention
+StackPulse는 공개된 기술 문서, 릴리즈 노트, 보안 공지, 공식 블로그 등 외부 소스를 수집해 이슈 브리프를 구성할 수 있습니다.
 
-Preference and usage-related data is retained only as long as needed to operate the service, improve reliability, or comply with legal requirements.
+- 원문 링크는 가능한 한 함께 제공합니다.
+- StackPulse의 요약, 해석, 액션 제안은 참고 정보이며, 최종 판단의 책임은 사용자에게 있습니다.
+- 제3자 원문 사이트를 열 경우 해당 사이트의 정책이 별도로 적용됩니다.
 
-## 8. Your Choices
+## 6. 광고 및 스폰서 콘텐츠
 
-You may:
+현재 StackPulse는 정식 광고 네트워크 기반 맞춤형 광고를 운영하지 않습니다.
 
-- Change app language and feed preferences inside the app
-- Disable notifications in system settings
-- Contact the developer for privacy inquiries
+- 현재 빌드 기준으로 광고 ID를 판매하거나 광고 타기팅을 위해 개인정보를 제3자에게 제공하지 않습니다.
+- 향후 스폰서 콘텐츠 또는 광고가 도입될 경우, 표시 방식과 데이터 처리 범위를 별도 고지하고 본 방침을 업데이트할 수 있습니다.
 
-## 9. Contact
+## 7. 정보 보관 및 파기
 
-For privacy-related questions, contact: saem030@naver.com
+StackPulse는 서비스 제공에 필요한 범위 내에서 정보를 보관합니다.
 
-## 10. Changes
+- 로컬 설정과 개인화 상태는 사용자의 앱 사용 기간 동안 기기 또는 서버 저장소에 유지될 수 있습니다.
+- 문의 이메일은 응답 및 운영 기록을 위해 일정 기간 보관될 수 있습니다.
+- 더 이상 필요하지 않은 정보는 합리적인 기간 내 삭제하거나 복구가 어렵도록 처리합니다.
 
-This policy may be updated as StackPulse adds hosted APIs, accounts, analytics, or advertising products. The latest version should always be published at the service policy URL used in production builds.
+## 8. 제3자 제공 및 처리 위탁
+
+StackPulse는 원칙적으로 사용자의 개인정보를 판매하지 않습니다.
+
+다만 아래와 같은 경우에는 제한적으로 외부 인프라를 사용할 수 있습니다.
+
+- 데이터 저장소 운영
+- 앱 배포 및 알림 인프라 운영
+- 서비스 안정성 확인을 위한 기술적 로그 처리
+
+법령상 요구가 있는 경우를 제외하고, 사용자의 정보를 서비스 운영 목적 외로 제3자에게 제공하지 않습니다.
+
+## 9. 이용자의 권리
+
+사용자는 다음과 같은 권리를 가질 수 있습니다.
+
+- 앱 내 설정 변경
+- 알림 권한 해제
+- 서비스 문의 및 개인정보 처리 관련 문의
+- 보관 중인 개인화 정보에 대한 삭제 또는 정정 요청
+
+삭제 요청이 들어오면 StackPulse는 합리적인 범위에서 해당 요청을 검토하고 처리합니다. 다만 법령상 보관이 필요한 정보는 즉시 삭제되지 않을 수 있습니다.
+
+## 10. 아동의 개인정보
+
+StackPulse는 일반 개발자 및 성인 사용자를 주된 대상으로 합니다. 아동을 대상으로 개인정보를 의도적으로 수집하지 않습니다.
+
+## 11. 정책 변경
+
+StackPulse의 기능이 바뀌거나, 정식 로그인, 분석 도구, 광고 기능 등이 추가되면 본 방침이 변경될 수 있습니다. 중요한 변경이 있는 경우 앱 또는 관련 페이지에서 고지합니다.
+
+## 12. 문의처
+
+개인정보 처리에 관한 문의는 아래로 연락할 수 있습니다.
+
+- 이메일: saem030@naver.com
+

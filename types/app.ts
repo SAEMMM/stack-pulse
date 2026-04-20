@@ -24,6 +24,22 @@ export type UserPreferences = {
   notificationPermission?: "granted" | "denied" | "undetermined";
 };
 
+export type UserSession = {
+  userId: string;
+  accountType: "guest";
+  createdAt: string;
+};
+
+export type RemoteUserProfile = {
+  userId: string;
+  accountType: "guest";
+  createdAt: string;
+  updatedAt: string;
+  isOnboarded: boolean;
+  preferences: UserPreferences | null;
+  issueStates: Record<string, IssueState>;
+};
+
 export type Issue = {
   id: string;
   severity: Severity;
@@ -97,7 +113,7 @@ export type ContentBundle = {
   contentMeta: ContentMeta;
 };
 
-export type ContentSource = "empty" | "remote";
+export type ContentSource = "empty" | "live" | "mixed" | "fixture";
 
 export type FeedResponse = ContentBundle & {
   nextCursor: string | null;

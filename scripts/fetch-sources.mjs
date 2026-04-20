@@ -4,6 +4,7 @@ import path from "node:path";
 const projectRoot = process.cwd();
 const outputPath = path.join(projectRoot, "content", "fetched-sources.json");
 const fixturePath = path.join(projectRoot, "content", "fixtures", "source-snapshot.json");
+const MAX_SOURCE_AGE_DAYS = Number.parseInt(process.env.STACK_PULSE_MAX_SOURCE_AGE_DAYS ?? "180", 10);
 
 const sourceDefinitions = [
   {
@@ -80,6 +81,20 @@ const sourceDefinitions = [
   },
 ];
 
+const stackKeywords = [
+  { stack: "Next.js", keywords: ["next.js", "nextjs", "app router", "turbopack"] },
+  { stack: "React", keywords: ["react", "react compiler", "server components"] },
+  { stack: "TypeScript", keywords: ["typescript", "tsserver", "tsc"] },
+  { stack: "Node.js", keywords: ["node.js", "nodejs", "npm", "package manager"] },
+  { stack: "NestJS", keywords: ["nestjs", "guard", "decorator"] },
+  { stack: "Prisma", keywords: ["prisma", "query engine", "migrate"] },
+  { stack: "FastAPI", keywords: ["fastapi", "pydantic", "uvicorn"] },
+  { stack: "Python", keywords: ["python", "pypi", "pip"] },
+  { stack: "Database", keywords: ["database", "postgres", "mysql", "sqlite", "sql"] },
+  { stack: "Backend", keywords: ["backend", "server", "runtime", "api"] },
+  { stack: "Vercel", keywords: ["vercel", "edge", "serverless"] },
+];
+
 const issueMatchers = [
   {
     issueKey: "next-16-2",
@@ -124,7 +139,13 @@ const issueMatchers = [
     tags: ["TypeScript", "Node.js"],
     match(entry) {
       const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
-      return haystack.includes("typescript") && haystack.includes("released");
+      return (
+        haystack.includes("typescript") &&
+        (haystack.includes("released") ||
+          haystack.includes("release") ||
+          haystack.includes("beta") ||
+          haystack.includes("rc"))
+      );
     },
   },
   {
@@ -133,7 +154,10 @@ const issueMatchers = [
     tags: ["Node.js", "Backend"],
     match(entry) {
       const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
-      return haystack.includes("node.js") && haystack.includes("release");
+      return (
+        (haystack.includes("node.js") || haystack.includes("nodejs")) &&
+        (haystack.includes("release") || haystack.includes("runtime"))
+      );
     },
   },
   {
@@ -151,7 +175,13 @@ const issueMatchers = [
     tags: ["Prisma", "Database", "Backend"],
     match(entry) {
       const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
-      return haystack.includes("prisma") && (haystack.includes("query engine") || haystack.includes("migrate"));
+      return (
+        haystack.includes("prisma") &&
+        (haystack.includes("query engine") ||
+          haystack.includes("migrate") ||
+          haystack.includes("prisma orm") ||
+          haystack.includes("typed sql"))
+      );
     },
   },
   {
@@ -161,6 +191,28 @@ const issueMatchers = [
     match(entry) {
       const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
       return haystack.includes("fastapi") && (haystack.includes("security") || haystack.includes("vulnerability"));
+    },
+  },
+  {
+    issueKey: "react-release",
+    severity: "major",
+    tags: ["React"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return haystack.includes("react") && (haystack.includes("release") || haystack.includes("react 19"));
+    },
+  },
+  {
+    issueKey: "next-runtime-update",
+    severity: "major",
+    tags: ["Next.js", "React", "Vercel"],
+    match(entry) {
+      const haystack = `${entry.title} ${entry.excerpt}`.toLowerCase();
+      return (
+        (haystack.includes("next.js") || haystack.includes("nextjs")) &&
+        !haystack.includes("16.2") &&
+        (haystack.includes("release") || haystack.includes("cache") || haystack.includes("router"))
+      );
     },
   },
 ];
@@ -194,12 +246,88 @@ function slugify(value) {
     .slice(0, 60);
 }
 
+function isRecentEnough(publishedAt) {
+  const publishedTimestamp = Date.parse(publishedAt);
+
+  if (!Number.isFinite(publishedTimestamp)) {
+    return false;
+  }
+
+  const maxAgeMs = MAX_SOURCE_AGE_DAYS * 24 * 60 * 60 * 1000;
+  return Date.now() - publishedTimestamp <= maxAgeMs;
+}
+
 function getHost(url) {
   try {
     return new URL(url).host.replace(/^www\./, "");
   } catch {
     return "";
   }
+}
+
+function toHaystack(entry) {
+  return `${entry.sourceName} ${entry.title} ${entry.excerpt} ${entry.url}`.toLowerCase();
+}
+
+function inferTags(entry) {
+  const haystack = toHaystack(entry);
+  const tags = stackKeywords
+    .filter((candidate) => candidate.keywords.some((keyword) => haystack.includes(keyword)))
+    .map((candidate) => candidate.stack);
+
+  if (tags.length > 0) {
+    return tags;
+  }
+
+  if (entry.sourceKey.includes("next")) return ["Next.js", "React", "Vercel"];
+  if (entry.sourceKey.includes("react")) return ["React"];
+  if (entry.sourceKey.includes("typescript")) return ["TypeScript", "Node.js"];
+  if (entry.sourceKey.includes("node")) return ["Node.js", "Backend"];
+  if (entry.sourceKey.includes("nestjs")) return ["NestJS", "Backend", "Node.js"];
+  if (entry.sourceKey.includes("prisma")) return ["Prisma", "Database", "Backend"];
+  if (entry.sourceKey.includes("fastapi")) return ["FastAPI", "Python", "Backend"];
+
+  return [];
+}
+
+function inferSeverity(entry) {
+  const haystack = toHaystack(entry);
+
+  if (
+    haystack.includes("cve-") ||
+    haystack.includes("security") ||
+    haystack.includes("vulnerability") ||
+    haystack.includes("advisory") ||
+    haystack.includes("supply-chain") ||
+    haystack.includes("malware")
+  ) {
+    return "security";
+  }
+
+  if (
+    haystack.includes("breaking") ||
+    haystack.includes("deprecat") ||
+    haystack.includes("migration") ||
+    haystack.includes("rfc")
+  ) {
+    return "breaking";
+  }
+
+  return "major";
+}
+
+function createGenericIssue(entry) {
+  const tags = inferTags(entry);
+
+  if (tags.length === 0) {
+    return null;
+  }
+
+  return {
+    issueKey: `live-${entry.sourceKey}-${slugify(entry.title)}`,
+    severity: inferSeverity(entry),
+    tags,
+  };
 }
 
 function parseXmlEntries(xml) {
@@ -241,7 +369,7 @@ function parseRssFeed(xml, source) {
       url: readXmlTag(entry, ["link", "id"]),
       publishedAt: readXmlTag(entry, ["pubDate", "updated", "published"]),
     }))
-    .filter((entry) => entry.title && entry.url);
+    .filter((entry) => entry.title && entry.url && isRecentEnough(entry.publishedAt));
 }
 
 function parseGitHubReleases(items, source) {
@@ -256,20 +384,23 @@ function parseGitHubReleases(items, source) {
       excerpt: stripHtml(item.body || ""),
       url: item.html_url,
       publishedAt: item.published_at || item.created_at,
-    }));
+    }))
+    .filter((item) => isRecentEnough(item.publishedAt));
 }
 
 function parseGitHubAdvisories(items, source) {
-  return items.map((item) => ({
-    sourceKey: source.key,
-    sourceName: source.name,
-    sourceType: source.sourceType,
-    isOfficial: source.isOfficial,
-    title: normalizeWhitespace(item.summary || item.cve_id || "Untitled advisory"),
-    excerpt: stripHtml(item.description || item.summary || ""),
-    url: item.html_url || item.references?.[0]?.url || "https://github.com/advisories",
-    publishedAt: item.published_at || item.updated_at,
-  }));
+  return items
+    .map((item) => ({
+      sourceKey: source.key,
+      sourceName: source.name,
+      sourceType: source.sourceType,
+      isOfficial: source.isOfficial,
+      title: normalizeWhitespace(item.summary || item.cve_id || "Untitled advisory"),
+      excerpt: stripHtml(item.description || item.summary || ""),
+      url: item.html_url || item.references?.[0]?.url || "https://github.com/advisories",
+      publishedAt: item.published_at || item.updated_at,
+    }))
+    .filter((item) => isRecentEnough(item.publishedAt));
 }
 
 async function fetchJson(url) {
@@ -318,7 +449,7 @@ async function collectFromSource(source) {
 }
 
 function matchIssue(entry) {
-  return issueMatchers.find((matcher) => matcher.match(entry)) ?? null;
+  return issueMatchers.find((matcher) => matcher.match(entry)) ?? createGenericIssue(entry);
 }
 
 function normalizeCollectedEntry(entry) {
@@ -346,6 +477,10 @@ function normalizeCollectedEntry(entry) {
 }
 
 function normalizeFixtureEntry(entry) {
+  if (!isRecentEnough(entry.publishedAt)) {
+    return null;
+  }
+
   return {
     ...entry,
     host: entry.host ?? getHost(entry.url),
@@ -357,9 +492,11 @@ function normalizeFixtureEntry(entry) {
 function mergeWithFixtures(collected, fixtures) {
   const seenKeys = new Set(collected.map((item) => item.issueKey));
   const fallback = fixtures
+    .map((item) => normalizeFixtureEntry(item))
+    .filter(Boolean)
     .filter((item) => !seenKeys.has(item.issueKey))
     .map((item) => ({
-      ...normalizeFixtureEntry(item),
+      ...item,
       fallback: true,
     }));
 
@@ -399,8 +536,10 @@ async function fetchLiveSources() {
 }
 
 async function main() {
-  const mode = process.env.STACK_PULSE_FETCH_MODE ?? "fixture";
-  const fixtureSnapshot = readFixtureSnapshot();
+  const mode = process.env.STACK_PULSE_FETCH_MODE ?? "live";
+  const fixtureSnapshot = readFixtureSnapshot()
+    .map((item) => normalizeFixtureEntry(item))
+    .filter(Boolean);
 
   let sources;
 
@@ -410,10 +549,16 @@ async function main() {
     } catch (error) {
       console.warn("Live fetch failed, falling back to fixture snapshot.");
       console.warn(error instanceof Error ? error.message : String(error));
-      sources = fixtureSnapshot.map(normalizeFixtureEntry);
+      sources = fixtureSnapshot.map((item) => ({
+        ...normalizeFixtureEntry(item),
+        fallback: true,
+      }));
     }
   } else {
-    sources = fixtureSnapshot.map(normalizeFixtureEntry);
+    sources = fixtureSnapshot.map((item) => ({
+      ...item,
+      fallback: true,
+    }));
   }
 
   fs.writeFileSync(outputPath, `${JSON.stringify(sources, null, 2)}\n`);
@@ -421,6 +566,7 @@ async function main() {
   console.log(
     `Fetched ${sources.length} sources into content/fetched-sources.json using ${mode} mode.`,
   );
+  console.log(`Excluded sources older than ${MAX_SOURCE_AGE_DAYS} days.`);
   console.log(`Configured sources: ${sourceDefinitions.map((source) => source.name).join(", ")}`);
 }
 

@@ -49,26 +49,18 @@ function isValidFeedResponse(value: unknown): value is FeedResponse {
 }
 
 function getDevApiBaseUrl() {
+  const explicitApiUrl =
+    typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
+
+  if (explicitApiUrl) {
+    return explicitApiUrl;
+  }
+
   const explicitDevHost =
     typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_DEV_API_HOST ?? "") : "";
 
   if (explicitDevHost) {
     return `http://${explicitDevHost}:${DEV_API_PORT}`;
-  }
-
-  if (Platform.OS === "ios") {
-    return `http://127.0.0.1:${DEV_API_PORT}`;
-  }
-
-  if (Platform.OS === "android") {
-    return `http://10.0.2.2:${DEV_API_PORT}`;
-  }
-
-  const extra =
-    typeof process !== "undefined" ? (process.env.EXPO_PUBLIC_STACK_PULSE_API_URL ?? "") : "";
-
-  if (extra) {
-    return extra;
   }
 
   const scriptURL =
@@ -80,11 +72,23 @@ function getDevApiBaseUrl() {
     try {
       const parsed = new URL(scriptURL);
       if (parsed.hostname) {
+        if (Platform.OS === "android" && parsed.hostname === "localhost") {
+          return `http://10.0.2.2:${DEV_API_PORT}`;
+        }
+
         return `http://${parsed.hostname}:${DEV_API_PORT}`;
       }
     } catch {
       return null;
     }
+  }
+
+  if (Platform.OS === "ios") {
+    return `http://127.0.0.1:${DEV_API_PORT}`;
+  }
+
+  if (Platform.OS === "android") {
+    return `http://10.0.2.2:${DEV_API_PORT}`;
   }
 
   return null;

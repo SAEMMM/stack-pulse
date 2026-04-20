@@ -15,7 +15,8 @@
     "originalExcerpt": "Next.js 16.2 is available with performance and stability improvements for modern React apps.",
     "host": "nextjs.org",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.150Z"
+    "collectedAt": "2026-04-20T05:47:44.166Z",
+    "fallback": true
   },
   {
     "sourceId": "vercel-blog-post",
@@ -34,7 +35,8 @@
     "originalExcerpt": "Vercel highlights App Router performance wins and improved Turbopack stability in the latest release.",
     "host": "vercel.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "security-advisory",
@@ -52,7 +54,8 @@
     "originalExcerpt": "A newly disclosed advisory points to potential supply-chain risk in a package commonly used near TypeScript build workflows.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "react-rfc",
@@ -69,7 +72,8 @@
     "originalExcerpt": "The updated RFC clarifies stricter expectations around compiler escape hatches and coding patterns.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "typescript-release",
@@ -87,7 +91,8 @@
     "originalExcerpt": "TypeScript 5.9 beta introduces compiler ergonomics and tighter language service behavior for larger codebases.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "nodejs-blog-release",
@@ -105,7 +110,8 @@
     "originalExcerpt": "The latest Node.js release improves startup characteristics and updates package management behavior for server teams.",
     "host": "nodejs.org",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "nestjs-release",
@@ -124,7 +130,8 @@
     "originalExcerpt": "NestJS ships updates that affect auth guard composition and module-level configuration patterns.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "prisma-release",
@@ -143,7 +150,8 @@
     "originalExcerpt": "Prisma introduced query engine and migrate behavior changes that may affect local development and CI consistency.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "fastapi-security",
@@ -162,7 +170,8 @@
     "originalExcerpt": "A FastAPI release addresses a security-sensitive request validation edge case in specific backend deployments.",
     "host": "github.com",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   },
   {
     "sourceId": "react-blog-post",
@@ -179,6 +188,7 @@
     "originalExcerpt": "The React team published updated guidance around compiler adoption and escape hatch usage.",
     "host": "react.dev",
     "isOfficial": true,
-    "collectedAt": "2026-04-14T07:43:47.151Z"
+    "collectedAt": "2026-04-20T05:47:44.167Z",
+    "fallback": true
   }
 ]

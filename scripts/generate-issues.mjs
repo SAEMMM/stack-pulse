@@ -7,7 +7,6 @@ const generatedEnrichmentsPath = path.join(projectRoot, "content", "generated-en
 const baselineEnrichmentsPath = path.join(projectRoot, "content", "issue-enrichments.json");
 const outputPath = path.join(projectRoot, "data", "generatedIssues.ts");
 const jsonOutputPath = path.join(projectRoot, "content", "app-content.json");
-const fetchMode = process.env.STACK_PULSE_FETCH_MODE ?? "fixture";
 const enrichmentMode = process.env.STACK_PULSE_ENRICHMENT_MODE ?? "baseline";
 
 const fetchedSources = JSON.parse(fs.readFileSync(fetchedSourcesPath, "utf8"));
@@ -94,6 +93,26 @@ const issues = [...grouped.values()].map(mergeIssue).sort(sortByDateDesc);
 const availableStacks = unique(issues.flatMap((issue) => issue.tags)).sort((a, b) =>
   a.localeCompare(b),
 );
+
+function resolveFetchMode(items) {
+  if (items.length === 0) {
+    return "fixture";
+  }
+
+  const fallbackCount = items.filter((item) => item.fallback).length;
+
+  if (fallbackCount === items.length) {
+    return "fixture";
+  }
+
+  if (fallbackCount > 0) {
+    return "mixed";
+  }
+
+  return "live";
+}
+
+const fetchMode = resolveFetchMode(fetchedSources);
 
 const contentMeta = {
   generatedAt: new Date().toISOString(),

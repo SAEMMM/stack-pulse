@@ -1,30 +1,39 @@
+import { ContentMeta, ContentSource, UserPreferences, UserSession } from "../types/app";
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import { colors, spacing } from "../constants/theme";
-import i18n from "../i18n";
-import { formatShortDate } from "../lib/format";
 import { requestNotificationPermission, scheduleTestNotification } from "../lib/notifications";
+
+import { formatShortDate } from "../lib/format";
+import i18n from "../i18n";
 import { runtimeConfig } from "../lib/runtimeConfig";
-import { ContentMeta, ContentSource, UserPreferences } from "../types/app";
+import { useTranslation } from "react-i18next";
 
 export function SettingsScreen({
   availableStacks,
   apiBaseUrl,
   contentMeta,
   contentSource,
+  debugFirstIssueId,
+  isSyncingAccount,
   isRefreshingContent,
+  lastAccountSyncSucceeded,
   preferences,
   onChange,
   onRefreshContent,
+  userSession,
 }: {
   availableStacks: string[];
   apiBaseUrl: string | null;
   contentMeta: ContentMeta;
   contentSource: ContentSource;
+  debugFirstIssueId: string | null;
+  isSyncingAccount: boolean;
   isRefreshingContent: boolean;
+  lastAccountSyncSucceeded: boolean | null;
   preferences: UserPreferences;
   onChange: (next: UserPreferences) => void;
   onRefreshContent: () => Promise<boolean>;
+  userSession: UserSession | null;
 }) {
   const { t } = useTranslation();
 
@@ -62,6 +71,25 @@ export function SettingsScreen({
       <Text style={styles.subtitle}>{t("settings.subtitle")}</Text>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("settings.account")}</Text>
+        <Text style={styles.optionTitle}>{t("settings.accountGuestTitle")}</Text>
+        <Text style={styles.optionBody}>
+          {t("settings.accountGuestBody", {
+            id: userSession?.userId ?? t("settings.accountMissing"),
+          })}
+        </Text>
+        <Text style={styles.optionBody}>
+          {isSyncingAccount
+            ? t("settings.accountSyncing")
+            : lastAccountSyncSucceeded === false
+              ? t("settings.accountSyncFailed")
+              : lastAccountSyncSucceeded === true
+                ? t("settings.accountSynced")
+                : t("settings.accountSyncIdle")}
+        </Text>
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("settings.content")}</Text>
         <Text style={styles.optionBody}>
           {t("settings.contentUpdated", {
@@ -81,6 +109,11 @@ export function SettingsScreen({
         <Text style={styles.optionBody}>
           {t("settings.apiEndpoint", {
             endpoint: apiBaseUrl ?? t("settings.apiEndpointMissing"),
+          })}
+        </Text>
+        <Text style={styles.optionBody}>
+          {t("settings.debugFirstIssue", {
+            id: debugFirstIssueId ?? t("settings.accountMissing"),
           })}
         </Text>
         <Pressable
@@ -209,7 +242,7 @@ export function SettingsScreen({
         </Pressable>
       </View>
 
-      <View style={styles.section}>
+      {/* <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("settings.legal")}</Text>
         <Pressable style={styles.linkRow} onPress={() => openExternal(runtimeConfig.privacyPolicyUrl)}>
           <Text style={styles.linkText}>{t("settings.privacyPolicy")}</Text>
@@ -220,7 +253,7 @@ export function SettingsScreen({
         <Pressable style={styles.linkRow} onPress={() => openExternal(`mailto:${runtimeConfig.supportEmail}`)}>
           <Text style={styles.linkText}>{t("settings.contactSupport")}</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("settings.advertising")}</Text>
